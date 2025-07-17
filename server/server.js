@@ -22,7 +22,11 @@ await connectCloudinary();
 //Allow multiple origins
 const allowedOrigins=['http://localhost:5173','https://gro-mart.vercel.app']
 
-app.post('/stripe', express.raw({type: 'application/json'}), stripeWebhook)
+app.post(
+  '/api/webhook/stripe',
+  express.raw({ type: 'application/json' }),
+  stripeWebhook
+);
 
 // Middleware configuration
 app.use(express.json());

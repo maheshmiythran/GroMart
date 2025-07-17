@@ -15,6 +15,7 @@ const Cart = () => {
     navigate,
     getCartAmount,
     setCartItems,
+    setShowUserLogin,
   } = useAppContext();
   const [cartArray, setCartArray] = useState([]);
   const [addresses, setAddresses] = useState([]);
@@ -61,9 +62,24 @@ const Cart = () => {
   }, [products, cartItems]);
 
   const placeOrder = async () => {
+    
     try {
+
+      if (!user || !user._id) {
+        setShowUserLogin(true);
+        setTimeout(() => {
+          toast.error("Please log in to place an order");
+        }, 50);
+        return;
+      }
+
       if (!selectedAddress) {
         toast.error("Please select a delivery address");
+        return;
+      }
+
+      if (cartArray.length === 0) {
+        toast.error("Your cart is empty");
         return;
       }
     
