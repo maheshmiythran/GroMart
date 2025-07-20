@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
@@ -29,6 +29,10 @@ const TrackOrder = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, []);
 
   return (
     <div className="p-6 max-w-2xl mx-auto">

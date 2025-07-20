@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { useEffect } from "react";
 const faqs = [
   {
     question: "How long does delivery take?",
@@ -34,6 +34,9 @@ const FAQ = () => {
   const toggleFAQ = (index) => {
     setOpenIndex(index === openIndex ? null : index);
   };
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   return (
     <div className="px-6 md:px-16 lg:px-24 xl:px-32 py-6 text-gray-700">

@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router-dom";
-
+import { useEffect } from "react";
 
 const DeliveryInfo = () => {
   const navigate = useNavigate();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
   return (
     <div className="px-6 md:px-16 lg:px-24 xl:px-32 py-6 text-gray-700">
       <h1 className="text-3xl font-bold text-primary mb-4">Delivery Information</h1>

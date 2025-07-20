@@ -80,6 +80,10 @@ const Offers = () => {
     const interval = setInterval(updateTimers, 1000);
     return () => clearInterval(interval);
   }, []);
+  
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   return (
     <div className="px-6 md:px-16 lg:px-24 xl:px-32 py-6 text-gray-700">

@@ -1,4 +1,13 @@
+import { useEffect } from "react";
+
 const Contact = () => {
+
+  useEffect(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, []);useEffect(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, []);
+
   return (
     <div className="px-6 md:px-16 lg:px-24 xl:px-32 py-6 text-gray-700">
       <h1 className="text-3xl font-bold text-primary mb-2">Contact Us</h1>
