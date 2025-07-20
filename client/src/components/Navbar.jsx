@@ -42,7 +42,7 @@ const Navbar = () => {
   return (
     <nav className="z-50 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white top-0 left-0 w-full transition-all">
       <NavLink to="/" onClick={() => setOpen(false)}>
-        <img className="h-20" src={assets.logo} alt="GroMartLogo1" />
+        <img className="h-24 md:h-28" src={assets.logo} alt="GroMartLogo" />
       </NavLink>
 
       {/* Desktop Menu */}

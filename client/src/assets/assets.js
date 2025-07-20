@@ -1,4 +1,4 @@
-import logo from "../assets/GroMartLogo1.png";
+import logo from "../assets/GroMart.png";
 import search_icon from "./search_icon.svg";
 import remove_icon from "./remove_icon.svg";
 import arrow_right_icon_colored from "./arrow_right_icon_colored.svg";
@@ -152,7 +152,7 @@ export const footerLinks = [
       { text: "Home", url: "/" },
       { text: "Best Sellers", url: "/#best-sellers" },
       { text: "Offers & Deals", url: "/offers" },
-      { text: "Contact Us", url: "/contact" },
+      { text: "SellerPanel (Admin Access)", url: "/seller" },
       { text: "FAQs", url: "/faq" },
     ],
   },
@@ -167,12 +167,12 @@ export const footerLinks = [
     ],
   },
   {
-    title: "Follow Us",
+    title: "Follow Me",
     links: [
-      { text: "Instagram", url: "https://instagram.com/yourpage" },
-      { text: "Twitter", url: "https://twitter.com/yourpage" },
-      { text: "Facebook", url: "https://facebook.com/yourpage" },
-      { text: "YouTube", url: "https://youtube.com/yourpage" },
+      { text: "Instagram", url: "https://www.instagram.com/justtt.mahesh?igsh=MWl5b3Z5dmYzMDl3eg%3D%3D&utm_source=qr" },
+      { text: "Twitter", url: "https://x.com/mahesh14228105?s=21" },
+      { text: "Facebook", url: "https://www.facebook.com/share/14Dijq1hJ9e/?mibextid=wwXIfr" },
+      { text: "YouTube", url: "https://www.youtube.com/@Mahesh-fk2cc" },
     ],
   },
 ];
