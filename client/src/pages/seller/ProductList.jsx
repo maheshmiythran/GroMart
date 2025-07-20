@@ -19,6 +19,54 @@ const ProductList = () => {
     }
   };
 
+  const handleDelete = (productId) => {
+  toast(
+    (t) => (
+      <div className="p-4 w-full max-w-xs sm:max-w-sm text-center">
+        <p className="text-base font-semibold text-gray-800">
+          Confirm Deletion
+        </p>
+        <p className="text-sm text-gray-600 mt-1">
+          Are you sure you want to delete this product?
+        </p>
+
+        <div className="mt-4 flex justify-center gap-4">
+          <button
+            className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700 transition"
+            onClick={async () => {
+              toast.dismiss(t.id);
+              try {
+                const { data } = await axios.delete(`/api/product/delete/${productId}`);
+                if (data.success) {
+                  toast.success(data.message || "Product deleted");
+                  fetchProducts();
+                } else {
+                  toast.error(data.message || "Failed to delete product");
+                }
+              } catch (error) {
+                toast.error(error.message || "Something went wrong");
+              }
+            }}
+          >
+            Yes, Delete
+          </button>
+          <button
+            className="px-4 py-2 text-sm bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition"
+            onClick={() => toast.dismiss(t.id)}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    ),
+    {
+      duration: 10000,
+      style: { maxWidth: '100%', width: 'auto' },
+    }
+  );
+};
+
+
   return (
     <div className="no-scrollbar flex-1 overflow-y-scroll flex flex-col justify-between">
       <div className="w-full md:p-10 p-4">
@@ -33,6 +81,7 @@ const ProductList = () => {
                   Selling Price
                 </th>
                 <th className="px-4 py-3 font-semibold truncate">In Stock</th>
+                <th className="px-4 py-3 font-semibold truncate">Delete</th>
               </tr>
             </thead>
             <tbody className="text-sm text-gray-500">
@@ -61,6 +110,15 @@ const ProductList = () => {
                       <span className="dot absolute left-1 top-1 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-5"></span>
                     </label>
                   </td>
+                  <td className="px-4 py-3">
+                    <button
+                      onClick={() => handleDelete(product._id)}
+                      className="text-red-600 hover:text-red-800 font-semibold text-sm cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </td>
+
                 </tr>
               ))}
             </tbody>

@@ -41,7 +41,7 @@ const SellerLayout = () => {
       <div className="flex items-center justify-between px-4 md:px-8 border-b border-gray-300 py-3 bg-white transition-all duration-300">
         <Link to="/">
           <img
-            className="cursor-pointer w-32 md:w-36"
+            className="cursor-pointer w-25 md:w-26"
             src={assets.logo}
             alt="Logo"
           />
@@ -61,10 +61,7 @@ const SellerLayout = () => {
       {/* Body Layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div
-          className={`${collapsed ? 'w-16' : 'w-20 md:w-64'
-            } border-r border-gray-200 pt-4 flex flex-col`}
-        >
+        <div className={`${collapsed ? 'w-16' : 'w-20 md:w-64'} border-r border-gray-200 pt-4 flex flex-col overflow-y-auto`}>
           {sidebarLinks.map((item) => (
             <NavLink
               to={item.path}
