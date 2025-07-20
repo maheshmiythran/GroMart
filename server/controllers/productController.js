@@ -1,6 +1,6 @@
 import { cloudinary } from '../configs/cloudinary.js';
 import Product from "../models/Product.js";
-
+import Order from "../models/Order.js";
 // Add Product : /api/product/add
 export const AddProduct = async (req, res) => {
     try {
@@ -83,4 +83,15 @@ export const deleteProduct = async (req, res) => {
         console.log(error.message);
         res.status(500).json({ success: false, message: error.message });
     }
+};
+
+// Update Status  : /api/product/update-status/:id
+export const updateOrderStatus = async (req, res) => {
+  const { orderId, status } = req.body;
+  try {
+    await Order.findByIdAndUpdate(orderId, { status });
+    res.json({ success: true, message: "Order status updated" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
 };

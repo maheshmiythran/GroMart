@@ -11,6 +11,11 @@ const orderSchema = new mongoose.Schema({
     status: { type: String, default: "Order Placed" },
     paymentType: { type: String, required: true},
     isPaid: { type: Boolean, required: true, default: false },
+    status: {
+      type: String,
+      enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"],
+      default: "Pending",
+    },
 },{timestamps: true});
 
 const Order = mongoose.models.order || mongoose.model("order", orderSchema);

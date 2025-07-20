@@ -24,6 +24,24 @@ const Orders = () => {
     fetchOrders();
   }, []);
 
+  const handleStatusUpdate = async (orderId, newStatus) => {
+    try {
+      const { data } = await axios.post('/api/order/update-status', {
+        orderId,
+        status: newStatus
+      });
+
+      if (data.success) {
+        toast.success("Order status updated");
+        fetchOrders(); // refresh orders
+      } else {
+        toast.error(data.message || "Failed to update status");
+      }
+    } catch (error) {
+      toast.error(error.message || "Error updating status");
+    }
+  };
+
   return (
     <div className='no-scrollbar flex-1 h-[95vh] overflow-y-scroll'>
       <div className="md:p-10 p-4 space-y-4">
@@ -68,6 +86,26 @@ const Orders = () => {
                 <p>Method: {order.paymentType}</p>
                 <p>Date: {new Date(order.createdAt).toLocaleDateString()}</p>
                 <p>Payment: {order.isPaid ? "Paid" : "Pending"}</p>
+                <div className="flex flex-col gap-1 mt-2">
+                  <label htmlFor={`status-${order._id}`} className="text-xs">Status</label>
+                  <select
+                    id={`status-${order._id}`}
+                    value={order.status}
+                    onChange={(e) => handleStatusUpdate(order._id, e.target.value)}
+                    className="border border-gray-300 rounded px-2 py-1 text-sm"
+                    disabled={order.status === "Cancelled"}
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+                  {order.status === "Cancelled" && (
+                  <p className="text-xs text-red-500 mt-1">Order was cancelled by {order.address.firstName} </p>
+                  )}
+
+                </div>
               </div>
             </div>
           ))
