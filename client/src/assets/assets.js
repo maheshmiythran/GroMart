@@ -150,7 +150,7 @@ export const footerLinks = [
     title: "Quick Links",
     links: [
       { text: "Home", url: "/" },
-      { text: "Best Sellers", url: "/best-sellers" },
+      { text: "Best Sellers", url: "/#best-sellers" },
       { text: "Offers & Deals", url: "/offers" },
       { text: "Contact Us", url: "/contact" },
       { text: "FAQs", url: "/faq" },

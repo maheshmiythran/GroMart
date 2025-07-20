@@ -18,7 +18,6 @@ import AddProduct from './pages/seller/AddProduct'
 import ProductList from './pages/seller/ProductList'
 import Orders from './pages/seller/Orders'
 import Loading from './components/Loading'
-import BestSellers from './pages/BestSellers'
 import BestSeller from './components/BestSeller'
 import Offers from './pages/Offers'
 import Contact from './pages/Contact'
@@ -51,7 +50,7 @@ const App = () => {
             <Route path = 'product-list' element={<ProductList/>}/>
             <Route path = 'orders' element={<Orders/>}/>
           </Route>
-          //footerLinks
+          {/* footerLinks */}
           <Route path="/offers" element={<Offers/>}  />
           <Route path="/contact" element={<Contact/>}  />
           <Route path="/faq" element={<FAQ />} />

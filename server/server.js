@@ -29,10 +29,9 @@ app.post(
 );
 
 // Middleware configuration
-app.use(express.json());
 app.use(cookieParser());
 app.use(cors({origin: allowedOrigins, credentials: true}))
-
+app.use(express.json());
 
 app.get('/', (req, res) => res.send("<h2> API IS WORKING</h2>"));
 app.use('/api/user', userRouter);  
