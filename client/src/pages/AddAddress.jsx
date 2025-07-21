@@ -43,7 +43,7 @@ const AddAddress = () => {
     const onSubmitHandler = async (e) => {
         e.preventDefault();
         try {
-            const {data} = await axios.post('/api/address/add', { address, userId: user._id });
+            const {data} = await axios.post('/api/address/add', { ...address, userId: user._id });
             if (data.success) {
                 toast.success(data.message);
                 navigate('/cart');
