@@ -101,10 +101,11 @@ export const isAuth = async (req, res) => {
 // Logout User : /api/user/logout
 export const logout = async (req, res) => {
     try {
-        res.clearCookie('token', '', {
-            httpOnly: true,
-            secure: true, // Set to true in production
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        res.cookie("token", token, {
+        httpOnly: true,
+        secure: true, // REQUIRED for Vercel HTTPS
+        sameSite: 'None', // REQUIRED for cross-site cookie sharing
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
         });
         return res.json({success: true, message: 'Logged out'});
     } catch (error) {
