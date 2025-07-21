@@ -137,6 +137,11 @@ const MyOrders = () => {
                                 🚫 This order has been cancelled, Refund will be iniated shortly.
                             </div>
                         )}
+                        {order.status === "Delivered" && (
+                            <div className="mt-4 text-center text-primary font-semibold">
+                                 This order has been Delivered.
+                            </div>
+                        )}
                     </div>
                 ))
             )}

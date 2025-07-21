@@ -23,8 +23,8 @@ export const register = async (req, res)=>{
 
         res.cookie('token', token, {
             httpOnly: true, // Secure cookies are only sent over HTTPS
-            secure: process.env.NODE_ENV === 'development', // Set to true in production
-            sameSite: process.env.NODE_ENV === 'development' ? 'none' : 'strict', // Adjust based on your environment
+            secure: process.env.NODE_ENV === 'production', // Set to true in production
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // Adjust based on your environment
             maxAge: 1 * 24 * 60 * 60 * 1000 // 1 day cookie expiration
         });
 

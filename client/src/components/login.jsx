@@ -59,11 +59,11 @@ const Login = () => {
 
     try {
       // Send API request to /api/user/login or /api/user/register
-      const { data } = await axios.post(`/api/user/${state}`, {
-        name,
-        email,
-        password,
-      });
+      const { data } = await axios.post(
+        `/api/user/${state}`,
+        { name, email, password },
+        { withCredentials: true }
+      );
 
       if (data.success) {
         // Set user and redirect
