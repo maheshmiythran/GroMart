@@ -65,13 +65,7 @@ const Cart = () => {
     
     try {
 
-      if (!user || !user._id) {
-        if (!setShowUserLogin) setShowUserLogin(true); // avoid re-triggering if already open
-        setTimeout(() => {
-          toast.error("Please log in to place an order");
-        }, 50);
-        return;
-      }
+      
 
       if (!selectedAddress) {
         toast.error("Please select a delivery address");
