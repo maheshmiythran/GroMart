@@ -21,12 +21,13 @@ export const register = async (req, res)=>{
         })
         const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '1d'})
 
-        res.cookie('token', token, {
-            httpOnly: true, // Secure cookies are only sent over HTTPS
-            secure: true, // Set to true in production
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // Adjust based on your environment
-            maxAge: 1 * 24 * 60 * 60 * 1000 // 1 day cookie expiration
+        res.cookie("token", token, {
+        httpOnly: true,
+        secure: true, // Must be true in production (https)
+        sameSite: 'None', // VERY IMPORTANT for cross-origin cookies
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
         });
+
 
         return res.json({success: true, user: {email: user.email, name: user.name}})
 
@@ -58,12 +59,13 @@ export const login = async (req, res)=>{
 
         const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '1d'})
 
-        res.cookie('token', token, {
-            httpOnly: true, 
-            secure: true, 
-            sameSite: process.env.NODE_ENV === 'development' ? 'none' : 'strict', 
-            maxAge: 1 * 24 * 60 * 60 * 1000 
+        res.cookie("token", token, {
+        httpOnly: true,
+        secure: true, // Must be true in production (https)
+        sameSite: 'None', // VERY IMPORTANT for cross-origin cookies
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
         });
+
         return res.json({success: true, user: {email: user.email, name: user.name}})
     } catch (error) {
         console.log(error);
