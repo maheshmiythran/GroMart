@@ -97,8 +97,9 @@ export const AppContextProvider = ({ children }) => {
     setCartItems(cartData);
     toast.success("Removed from cart");
   };
+  
   //Update Cart Item Quantity
-  const updateCartItem = (itemId, quantity) => {
+  const updateCartItem = async (itemId, quantity) => {
     let cartData = structuredClone(cartItems);
 
     if (quantity <= 0) {
@@ -110,6 +111,17 @@ export const AppContextProvider = ({ children }) => {
     }
 
     setCartItems(cartData);
+
+    // Send update to backend
+    try {
+      await axios.post("/api/cart/update", {
+        productId: itemId,
+        quantity,
+      });
+    } catch (error) {
+      console.error("Failed to sync cart with backend", error);
+      toast.error("Failed to sync cart with server");
+    }
   };
 
   //Get Cart Items Count
