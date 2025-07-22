@@ -23,6 +23,23 @@ const Cart = () => {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentOption, setPaymentOption] = useState("COD");
 
+  const handleDeleteAddress = async (address) => {
+    try {
+      const { data } = await axios.delete(`/api/address/delete/${address._id}`);
+
+      if (data.success) {
+        toast.success("Address deleted");
+        setAddresses((prev) => prev.filter((a) => a._id !== address._id));
+      } else {
+        toast.error(data.message || "Failed to delete address");
+      }
+    } catch (error) {
+      console.error("Delete address error:", error);
+      toast.error("Something went wrong");
+    }
+  };
+
+
   const getCart = () => {
     let tempArray = [];
     for (const key in cartItems) {
@@ -40,20 +57,20 @@ const Cart = () => {
 
   const getUserAddress = async () => {
     try {
-        const { data } = await axios.get(`/api/address/get?userId=${user._id}`);
-        if (data.success) {
+      const { data } = await axios.get(`/api/address/get?userId=${user._id}`);
+      if (data.success) {
         setAddresses(data.addresses);
         if (data.addresses.length > 0) {
-            setSelectedAddress(data.addresses[0]);
+          setSelectedAddress(data.addresses[0]);
         }
-        } else {
+      } else {
         toast.error(data.message);
-        }
+      }
     } catch (error) {
-        console.error("Fetch error:", error.response?.data || error.message);
-        toast.error(error.response?.data?.message || "Failed to fetch addresses");
+      console.error("Fetch error:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Failed to fetch addresses");
     }
-    };
+  };
 
   useEffect(() => {
     if (products.length > 0 && cartItems) {
@@ -62,14 +79,12 @@ const Cart = () => {
   }, [products, cartItems]);
 
   const placeOrder = async () => {
-    
+
     try {
 
       if (!user || !user._id) {
-        if (!setShowUserLogin) setShowUserLogin(true); // avoid re-triggering if already open
-        setTimeout(() => {
-          toast.error("Please log in to place an order");
-        }, 50);
+        if (!setShowUserLogin) setShowUserLogin(true);
+        toast.error("Please log in to place an order");
         return;
       }
 
@@ -82,32 +97,45 @@ const Cart = () => {
         toast.error("Your cart is empty");
         return;
       }
-    
-      if (paymentOption === "COD") {
-        const {data} = await axios.post("/api/order/cod", {
-          userId: user._id,
-          items: cartArray.map((item) => ({product: item._id, quantity: item.quantity})),
-          address: selectedAddress._id,
 
-        });
+      if (paymentOption === "COD") {
+        const { data } = await axios.post(
+          "/api/order/cod",
+          {
+            items: cartArray.map((item) => ({
+              product: item._id,
+              quantity: item.quantity,
+            })),
+            address: selectedAddress._id,
+          },
+          {
+            withCredentials: true, // ✅ VERY important
+          }
+        );
+
         if (data.success) {
           toast.success("Order placed successfully");
           setCartItems({});
           navigate("/my-orders");
-          
-        }
-        else {
+        } else {
           toast.error(data.message || "Failed to place order");
         }
       }
-      else{
+      else {
         //Place Order with Stripe
-        const {data} = await axios.post("/api/order/stripe", {
-          userId: user._id,
-          items: cartArray.map((item) => ({product: item._id, quantity: item.quantity})),
-          address: selectedAddress._id,
-
-        });
+        const { data } = await axios.post(
+          "/api/order/stripe",
+          {
+            items: cartArray.map((item) => ({
+              product: item._id,
+              quantity: item.quantity,
+            })),
+            address: selectedAddress._id,
+          },
+          {
+            withCredentials: true,
+          }
+        );
         if (data.success) {
           window.location.replace(data.url);
         }
@@ -247,18 +275,37 @@ const Cart = () => {
               Change
             </button>
             {showAddress && (
-              <div className="absolute top-12 py-1 bg-white border border-gray-300 text-sm w-full">
-                {addresses.map((address, index) => (
-                  <p
-                    onClick={() => {
-                      setSelectedAddress(address);
-                      setShowAddress(false);
-                    }}
-                    className="text-gray-500 p-2 hover:bg-gray-100"
+              <div className="absolute top-12 py-1 bg-white border border-gray-300 text-sm w-full z-10 max-h-[200px] overflow-y-auto">
+                {addresses.map((address) => (
+                  <div
+                    key={address._id}
+                    className="flex justify-between items-start p-2 border-b hover:bg-gray-50"
                   >
-                    {address.street}, {address.city}, {address.state},{" "}
-                    {address.country}
-                  </p>
+                    <p
+                      onClick={() => {
+                        setSelectedAddress(address);
+                        setShowAddress(false);
+                      }}
+                      className="text-gray-500 cursor-pointer text-sm"
+                    >
+                      {address.street}, {address.city}, {address.state}, {address.country}
+                    </p>
+                    <div className="flex flex-col gap-1 text-xs ml-4">
+                      <button
+                        className="text-blue-600 hover:underline"
+                        onClick={() => navigate(`/edit-address/${address._id}`)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="text-red-600 hover:underline"
+                        onClick={() => handleDeleteAddress(address)}
+                        ///onClick={() => handleDeleteAddress(address._id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 ))}
                 <p
                   onClick={() => navigate("/add-address")}
@@ -268,6 +315,7 @@ const Cart = () => {
                 </p>
               </div>
             )}
+
           </div>
 
           <p className="text-sm font-medium uppercase mt-6">Payment Method</p>

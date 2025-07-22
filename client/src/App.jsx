@@ -26,6 +26,7 @@ import DeliveryInfo from './pages/DeliveryInfo'
 import Returns from './pages/Returns'
 import Payment from './pages/PaymentMethod'
 import TrackOrder from './pages/TrackOrder'
+import EditAddress from './pages/EditAddress'
 const App = () => {
 
   const isSellerPath= useLocation().pathname.includes('seller')
@@ -43,6 +44,7 @@ const App = () => {
           <Route path="/products/:category/:id" element={<ProductDetails/>} />
           <Route path="/cart" element={<Cart/>} />
           <Route path="/add-address" element={<AddAddress/>} />
+          <Route path="/edit-address/:id" element={<EditAddress />} />
           <Route path="/my-orders" element={<MyOrders/>} />
           <Route path="/loader" element={<Loading/>} />
           <Route path="/seller" element={isSeller ? <SellerLayout/> : <SellerLogin/>}>
