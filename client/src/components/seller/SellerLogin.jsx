@@ -17,11 +17,11 @@ const SellerLogin = () => {
     setLoading(true);       // ✅ start loading
 
     try {
-      const { data } = await axios.post('/api/seller/login', {
-        email,
-        password,
-        remember,
-      });
+      const { data } = await axios.post(
+        '/api/seller/login',
+        { email, password, remember },
+        { withCredentials: true } // 🔥 THIS IS NECESSARY
+      );
 
       if (data.success) {
         setIsSeller(true);
