@@ -9,7 +9,9 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     try {
-      const { data } = await axios.get('/api/order/seller');
+      const { data } = await axios.get('/api/order/seller', {
+        withCredentials: true // 👈 VERY IMPORTANT
+      });
       if (data.success) {
         setOrders(data.orders);
       } else {
@@ -26,10 +28,11 @@ const Orders = () => {
 
   const handleStatusUpdate = async (orderId, newStatus) => {
     try {
-      const { data } = await axios.post('/api/order/update-status', {
-        orderId,
-        status: newStatus
-      });
+      const { data } = await axios.post(
+        '/api/order/update-status',
+        { orderId, status: newStatus },
+        { withCredentials: true }
+      );
 
       if (data.success) {
         toast.success("Order status updated");
@@ -71,11 +74,11 @@ const Orders = () => {
 
               <div className="text-sm md:text-base text-black/60">
                 <p className="text-black/80">
-                  {order.address.firstName} {order.address.lastName}
+                  {order.address?.firstName} {order.address?.lastName}
                 </p>
-                <p>{order.address.street}, {order.address.city}</p>
-                <p>{order.address.state}, {order.address.zipcode}, {order.address.country}</p>
-                <p>{order.address.phone}</p>
+                <p>{order.address?.street}, {order.address?.city}</p>
+                <p>{order.address?.state}, {order.address?.zipcode}, {order.address?.country}</p>
+                <p>{order.address?.phone}</p>
               </div>
 
               <p className="font-medium text-lg my-auto text-black">
@@ -102,7 +105,9 @@ const Orders = () => {
                     <option value="Cancelled">Cancelled</option>
                   </select>
                   {order.status === "Cancelled" && (
-                  <p className="text-xs text-red-500 mt-1">Order was cancelled by {order.address.firstName} </p>
+                    <p className="text-xs text-red-500 mt-1">
+                      Order was cancelled by {order.address?.firstName || 'Unknown'}
+                    </p>
                   )}
 
                 </div>
