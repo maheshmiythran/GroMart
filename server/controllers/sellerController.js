@@ -49,7 +49,7 @@ export const sellerLogout = async (req, res) => {
         res.clearCookie('sellerToken', {
             httpOnly: true, // Secure cookies are only sent over HTTPS
             secure: process.env.NODE_ENV === 'production', // Set to true in production
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // Adjust based on your environment
+            sameSite: 'None', // Adjust based on your environment
         });
         return res.json({ success: true, message: 'Seller Logged out Successful' });
     } catch (error) {

@@ -25,7 +25,7 @@ export const register = async (req, res)=>{
         httpOnly: true,
         secure: true, // Must be true in production (https)
         sameSite: 'None', // VERY IMPORTANT for cross-origin cookies
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+        maxAge: 1 * 24 * 60 * 60 * 1000, // 1 week
         });
 
 
@@ -63,7 +63,7 @@ export const login = async (req, res)=>{
         httpOnly: true,
         secure: true, // Must be true in production (https)
         sameSite: 'None', // VERY IMPORTANT for cross-origin cookies
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+        maxAge: 1 * 24 * 60 * 60 * 1000, // 1 week
         });
 
         return res.json({success: true, user: {email: user.email, name: user.name}})
@@ -104,7 +104,7 @@ export const logout = async (req, res) => {
         res.clearCookie('token', '', {
             httpOnly: true,
             secure: true, // Set to true in production
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+            sameSite: 'None',
         });
         return res.json({success: true, message: 'Logged out'});
     } catch (error) {
