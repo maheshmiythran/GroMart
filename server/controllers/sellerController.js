@@ -11,10 +11,10 @@ export const sellerLogin = async (req, res) => {
             const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
             res.cookie('sellerToken', token, {
-                httpOnly: true, // Secure cookies are only sent over HTTPS
-                secure: process.env.NODE_ENV === 'production', // Set to true in production
-                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // Adjust based on your environment
-                maxAge: 1 * 24 * 60 * 60 * 1000 // 1 day cookie expiration
+            httpOnly: true,
+            secure: true, // true in production
+            sameSite: 'None',
+            maxAge: 1 * 24 * 60 * 60 * 1000
             });
 
             return res.json({ success: true, message: 'Login In' });
