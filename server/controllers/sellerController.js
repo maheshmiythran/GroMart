@@ -35,10 +35,26 @@ export const sellerLogin = async (req, res) => {
 
 export const isSellerAuth = async (req, res) => {
   try {
-    return res.json({ success: true , message: 'Seller is Authenticated' });
+    const { sellerToken } = req.cookies;
+
+    if (!sellerToken) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: No token provided' });
+    }
+
+    try {
+      const decoded = jwt.verify(sellerToken, process.env.JWT_SECRET);
+      if (decoded.email === process.env.SELLER_EMAIL) {
+        return res.json({ success: true, message: 'Seller is Authenticated' });
+      } else {
+        return res.status(403).json({ success: false, message: 'Not authorized' });
+      }
+    } catch (error) {
+      console.error('JWT Verification Error:', error.message);
+      return res.status(401).json({ success: false, message: 'Invalid token' });
+    }
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
 

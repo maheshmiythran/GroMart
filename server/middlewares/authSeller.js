@@ -16,7 +16,7 @@ const authSeller = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Not authorized' });
     }
   } catch (error) {
-    console.error('Authentication error:', error);
+    console.error('Authentication error:', error.message);
     return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
