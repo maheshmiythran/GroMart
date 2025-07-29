@@ -19,13 +19,13 @@ export const register = async (req, res)=>{
             email,
             password: hashedPassword
         })
-        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '1d'})
+        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '7d'})
 
         res.cookie("token", token, {
         httpOnly: true,
         secure: true, // Must be true in production (https)
         sameSite: 'None', // VERY IMPORTANT for cross-origin cookies
-        maxAge: 1 * 24 * 60 * 60 * 1000, // 1 week
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
         });
 
 
@@ -79,22 +79,24 @@ export const login = async (req, res)=>{
 
 export const isAuth = async (req, res) => {
   try {
-    const userId = req.user.id; // ✅ Comes from JWT middleware
+    const userId = req.user?.id; // Comes from authUser middleware
 
     if (!userId) {
-      return res.json({ success: false, message: 'User not found' });
+      console.error('User ID not found in request');
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    const user = await User.findById(userId).select('-password'); // only hide password
+    const user = await User.findById(userId).select('-password'); // Exclude password
 
     if (!user) {
-      return res.json({ success: false, message: 'User not found' });
+      console.error('User not found in database');
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     return res.json({ success: true, user });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    console.error('Error in isAuth:', error.message);
+    return res.status(500).json({ success: false, message: 'Internal Server Error' });
   }
 };
 
