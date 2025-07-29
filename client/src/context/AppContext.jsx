@@ -54,6 +54,7 @@ export const AppContextProvider = ({ children }) => {
         }
       }
     } catch (error) {
+      console.error('Error fetching user auth:', error.message);
       setUser(null);
     }
   }
