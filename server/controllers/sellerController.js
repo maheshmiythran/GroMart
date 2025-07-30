@@ -12,10 +12,10 @@ export const sellerLogin = async (req, res) => {
 
             res.cookie('sellerToken', token, {
             httpOnly: true,
-            secure: true, // true in production
-            sameSite: 'none',
+            secure: true,         // 🚨 This breaks on localhost if you're not using HTTPS
+            sameSite: 'none',     // 🚨 Also needs HTTPS
             maxAge: 7 * 24 * 60 * 60 * 1000
-            });
+          });
 
             return res.json({ success: true, message: 'Logged In' });
         }
@@ -47,10 +47,10 @@ export const isSellerAuth = async (req, res) => {
 export const sellerLogout = async (req, res) => {
     try {
         res.clearCookie('sellerToken', {
-            httpOnly: true, // Secure cookies are only sent over HTTPS
-            secure: process.env.NODE_ENV === 'production', // Set to true in production
-            sameSite: 'none', // Adjust based on your environment
-        });
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax'
+      });
         return res.json({ success: true, message: 'Seller Logged out Successful' });
     } catch (error) {
         console.log(error);

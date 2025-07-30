@@ -1,6 +1,5 @@
 import { createContext, use, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
 export const AppContext = createContext();
 import axios from "axios";
@@ -57,12 +56,6 @@ export const AppContextProvider = ({ children }) => {
     } catch (error) {
       console.error('Error fetching user auth:', error.message);
 
-      // If 401, show toast and optionally open login modal
-      if (error.response?.status === 401) {
-        toast.error("Session expired. Please log in again.");
-        setShowUserLogin(true); // Open modal
-        navigate("/login"); // Optional redirect
-      }
 
       setUser(null);
     }
