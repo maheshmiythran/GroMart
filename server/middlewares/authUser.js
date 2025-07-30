@@ -9,17 +9,14 @@ const authUser = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (!decoded?.id) {
-      return res.status(401).json({ success: false, message: 'Unauthorized: Invalid token' });
-    }
-
-    req.user = { id: decoded.id };
-
+    req.user = decoded;
     next();
   } catch (error) {
-    console.error('Authentication error:', error);
-    return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, message: 'Session expired. Please log in again.' });
+    }
+
+    return res.status(401).json({ success: false, message: 'Invalid token' });
   }
 };
 

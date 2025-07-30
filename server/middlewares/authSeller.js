@@ -5,7 +5,7 @@ const authSeller = async (req, res, next) => {
 
   if (!sellerToken) {
     console.error('Unauthorized: No token provided');
-    return res.status(401).json({ success: false, message: 'Unauthorized: No token provided' });
+    return res.json({ success: false, message: 'Unauthorized: No token provided' });
   }
 
   try {
@@ -13,7 +13,7 @@ const authSeller = async (req, res, next) => {
     if (tokenDecode.email === process.env.SELLER_EMAIL) {
       next();
     } else {
-      return res.status(403).json({ success: false, message: 'Not authorized' });
+      return res.json({ success: false, message: 'Not authorized' });
     }
   } catch (error) {
     console.error('Authentication error:', error.message);
