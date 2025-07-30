@@ -39,10 +39,11 @@ export const AppContextProvider = ({ children }) => {
   // Fetch User Auth Status, User Data and Cart Items
   const fetchUser = async () => {
     try {
-      const { data } = await axios.get('/api/user/is-auth', { withCredentials: true });
+      const { data } = await axios.get('/api/user/is-auth');
       if (data.success) {
         setUser(data.user);
-        // Convert array to object for frontend
+
+        // Convert cart items array to object format
         const cartObj = {};
         if (Array.isArray(data.user.cartItems)) {
           data.user.cartItems.forEach(item => {
@@ -55,9 +56,17 @@ export const AppContextProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error fetching user auth:', error.message);
+
+      // If 401, show toast and optionally open login modal
+      if (error.response?.status === 401) {
+        toast.error("Session expired. Please log in again.");
+        setShowUserLogin(true); // Open modal
+        navigate("/login"); // Optional redirect
+      }
+
       setUser(null);
     }
-  }
+  };
 
 
   // Fetch All Products
