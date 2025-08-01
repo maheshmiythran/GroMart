@@ -21,7 +21,7 @@ export const register = async (req, res)=>{
         })
         const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '7d'})
 
-        res.cookie("token", token, {
+        res.cookie("userToken", token, {
         httpOnly: true,
         secure: true, // Must be true in production (https)
         sameSite: 'None', // VERY IMPORTANT for cross-origin cookies
@@ -59,7 +59,7 @@ export const login = async (req, res)=>{
 
         const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '1d'})
 
-        res.cookie("token", token, {
+        res.cookie("userToken", token, {
         httpOnly: true,
         secure: true, // Must be true in production (https)
         sameSite: 'None', // VERY IMPORTANT for cross-origin cookies
@@ -103,10 +103,11 @@ export const isAuth = async (req, res) => {
 // Logout User : /api/user/logout
 export const logout = async (req, res) => {
     try {
-        res.clearCookie('token', '', {
-            httpOnly: true,
-            secure: true, // Set to true in production
-            sameSite: 'None',
+        res.clearCookie('userToken', {
+          httpOnly: true,
+          secure: true, // must match login
+          sameSite: 'None', // must match login
+          path: '/', // must match login
         });
         return res.json({success: true, message: 'Logged out'});
     } catch (error) {

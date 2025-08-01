@@ -2,21 +2,31 @@ import jwt from 'jsonwebtoken';
 
 const authUser = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    const { userToken } = req.cookies;
 
-    if (!token) {
-      return res.status(401).json({ success: false, message: 'Unauthorized: No token' });
+    if (!userToken) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'No authentication token provided' 
+      });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
+    try {
+      const decoded = jwt.verify(userToken, process.env.JWT_SECRET);
+      req.user = decoded;
+      next();
+    } catch (error) {
+      return res.status(401).json({ 
+        success: false, 
+        message: 'Invalid token' 
+      });
+    }
   } catch (error) {
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ success: false, message: 'Session expired. Please log in again.' });
-    }
-
-    return res.status(401).json({ success: false, message: 'Invalid token' });
+    console.error('Auth middleware error:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error' 
+    });
   }
 };
 

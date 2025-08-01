@@ -5,7 +5,7 @@ import { useAppContext } from '../../context/AppContext';
 import { toast } from 'react-hot-toast';
 
 const SellerLayout = () => {
-  const { setIsSeller, axios } = useAppContext();
+  const { handleSellerLogout } = useAppContext();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -19,20 +19,8 @@ const SellerLayout = () => {
     { name: 'Orders', path: '/seller/orders', icon: assets.order_icon },
   ];
 
-  const logout = async () => {
-    try {
-      const { data } = await axios.get('/api/seller/logout', { withCredentials: true });
-      if (data.success) {
-        toast.success('Seller logged out successfully!');
-        setIsSeller(false);
-        navigate('/');
-      } else {
-        toast.error(data.message || 'Logout failed');
-      }
-    } catch (error) {
-        toast.error(error.message || 'Something went wrong');
-        console.error('Logout Error:', error);
-    }
+  const onLogoutClick = async () => {
+    await handleSellerLogout();
   };
 
   return (
@@ -50,7 +38,7 @@ const SellerLayout = () => {
         <div className="flex items-center gap-5 text-gray-500">
           <p>Hi! Admin</p>
           <button
-            onClick={logout}
+            onClick={onLogoutClick}
             className="border rounded-full text-sm px-4 py-1 hover:bg-gray-100 transition focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
           >
             Logout

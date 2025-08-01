@@ -4,13 +4,19 @@ const authSeller = async (req, res, next) => {
   try {
     const { sellerToken } = req.cookies;
 
-    if (!sellerToken) {
+    // Also check Authorization header for mobile apps
+    const authHeader = req.headers.authorization;
+    const tokenFromHeader = authHeader && authHeader.split(' ')[1];
+
+    const token = sellerToken || tokenFromHeader;
+
+    if (!token) {
       console.warn('Unauthorized: No token provided');
       return res.status(401).json({ success: false, message: 'Unauthorized: No token provided' });
     }
 
     try {
-      const decoded = jwt.verify(sellerToken, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       
       if (decoded.email === process.env.SELLER_EMAIL) {
         req.seller = decoded;
@@ -21,12 +27,16 @@ const authSeller = async (req, res, next) => {
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
         console.warn('Seller token expired');
-        res.clearCookie('sellerToken');
+        res.clearCookie('sellerToken', {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'None',
+          path: '/'
+        });
         return res.status(401).json({ success: false, message: 'Session expired. Please log in again.' });
       }
 
       console.error('Authentication error:', error.message);
-      res.clearCookie('sellerToken');
       return res.status(401).json({ success: false, message: 'Invalid token' });
     }
   } catch (error) {

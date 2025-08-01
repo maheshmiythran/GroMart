@@ -51,10 +51,9 @@ export const AppContextProvider = ({ children }) => {
   // Fetch User Auth Status, User Data and Cart Items
   const fetchUser = async () => {
     try {
-      const { data } = await axios.get('/api/user/is-auth');
+      const { data } = await axios.get('/api/user/is-auth', { withCredentials: true });
       if (data.success) {
         setUser(data.user);
-
         // Convert cart items array to object format
         const cartObj = {};
         if (Array.isArray(data.user.cartItems)) {
@@ -65,12 +64,17 @@ export const AppContextProvider = ({ children }) => {
         } else {
           setCartItems(data.user.cartItems || {});
         }
+      } else {
+        setUser(null);
+        setCartItems({});
       }
     } catch (error) {
-      console.error('Error fetching user auth:', error.message);
-
-
-      setUser(null);
+      if (error.response?.status === 401) {
+        setUser(null);
+        setCartItems({});
+      } else {
+        console.error('Error fetching user auth:', error.message);
+      }
     }
   };
 
@@ -162,26 +166,57 @@ export const AppContextProvider = ({ children }) => {
   }
 
   useEffect(() => {
-    fetchUser();
-    fetchProducts();
-  }, []);
+    const init = async () => {
+      try {
+        await fetchProducts();
+        await fetchUser(); // Always try to fetch user, let backend decide
+      } catch (error) {
+        console.error('Initialization error:', error);
+      }
+    };
+    init();
+  }, []); // Run once on mount
 
   //Update Database Cart Items
 
   useEffect(() => {
     const updateCart = async () => {
+      // Only attempt to update if we have a logged in user with an ID
+      if (!user?._id) return;
+
       try {
-        const { data } = await axios.post("/api/cart/update", { userId: user._id, cartItems });
+        const { data } = await axios.post("/api/cart/update", 
+          { 
+            userId: user._id, 
+            cartItems 
+          }, 
+          { 
+            withCredentials: true,
+            headers: {
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache'
+            }
+          }
+        );
+
         if (!data.success) {
           toast.error(data.message || "Failed to update cart");
-        } 
+        }
       } catch (error) {
-        toast.error(error.message || "Failed to update cart");
+        // Only show error toast if it's not an auth error
+        if (error.response?.status !== 401) {
+          console.error("Cart update error:", error.message);
+          toast.error("Failed to update cart");
+        }
       }
     };
 
-    if(user) {
+    // Only run updateCart if we have a user
+    if (user?._id) {
       updateCart();
+    } else {
+      // For guests, save cart to localStorage
+      localStorage.setItem("cartItems", JSON.stringify(cartItems));
     }
   }, [cartItems, user]);
 
@@ -201,7 +236,64 @@ export const AppContextProvider = ({ children }) => {
     }
   }, [cartItems, user]);
 
+  const handleSellerLogout = async () => {
+    try {
+      const { data } = await axios.get('/api/seller/logout', { 
+        withCredentials: true,
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      if (data.success) {
+        setIsSeller(false);
+        localStorage.removeItem('isSeller');
+        navigate('/seller');
+      } else {
+        toast.error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Failed to logout');
+    }
+  };
+
+  const handleUserLogout = async () => {
+    try {
+      const { data } = await axios.get('/api/user/logout', { withCredentials: true });
+      if (data.success) {
+        setUser(null);
+        setCartItems({});
+        toast.success('Logged out successfully');
+        
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error('Failed to logout');
+    }
+  };
+
+  const handleUserLogin = async (email, password) => {
+    try {
+      const { data } = await axios.post('/api/user/login', { email, password });
+      if (data.success) {
+        // DO NOT store token in localStorage
+        await fetchUser(); // This will work because cookie is set
+        setShowUserLogin(false);
+        toast.success('Login successful');
+      } else {
+        toast.error(data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Login failed');
+    }
+  };
+
+  // Add handleSellerLogout to the context value
   const value = {
+    handleSellerLogout,
     navigate,
     user,
     setUser,
@@ -222,6 +314,9 @@ export const AppContextProvider = ({ children }) => {
     axios,
     fetchProducts,
     setCartItems,
+    handleUserLogin,
+    handleUserLogout,
+    fetchUser, // <-- ADD THIS LINE
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

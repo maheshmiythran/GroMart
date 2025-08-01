@@ -57,18 +57,27 @@ const Cart = () => {
 
   const getUserAddress = async () => {
     try {
-      const { data } = await axios.get(`/api/address/get?userId=${user._id}`);
+      if (!user?._id) return;
+      const { data } = await axios.get(`/api/address/get?userId=${user._id}`, {
+        withCredentials: true,
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+
       if (data.success) {
         setAddresses(data.addresses);
         if (data.addresses.length > 0) {
           setSelectedAddress(data.addresses[0]);
         }
-      } else {
-        toast.error(data.message);
       }
     } catch (error) {
-      console.error("Fetch error:", error.response?.data || error.message);
-      toast.error(error.response?.data?.message || "Failed to fetch addresses");
+      // Handle 401 silently
+      if (error.response?.status === 401) {
+        return;
+      }
+      toast.error("Failed to fetch addresses");
     }
   };
 
@@ -79,12 +88,10 @@ const Cart = () => {
   }, [products, cartItems]);
 
   const placeOrder = async () => {
-
     try {
-
-      if (!user || !user._id) {
-        if (!setShowUserLogin) setShowUserLogin(true);
-        toast.error("Please log in to place an order");
+      // Check authentication first
+      if (!user?._id || !localStorage.getItem('userToken')) {
+        setShowUserLogin(true);
         return;
       }
 
@@ -93,25 +100,25 @@ const Cart = () => {
         return;
       }
 
-      if (cartArray.length === 0) {
-        toast.error("Your cart is empty");
-        return;
-      }
+      const orderData = {
+        items: cartArray.map((item) => ({
+          product: item._id,
+          quantity: item.quantity,
+        })),
+        address: selectedAddress._id,
+      };
+
+      const config = {
+        withCredentials: true,
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      };
 
       if (paymentOption === "COD") {
-        const { data } = await axios.post(
-          "/api/order/cod",
-          {
-            items: cartArray.map((item) => ({
-              product: item._id,
-              quantity: item.quantity,
-            })),
-            address: selectedAddress._id,
-          },
-          {
-            withCredentials: true, // ✅ VERY important
-          }
-        );
+        const { data } = await axios.post("/api/order/cod", orderData, config);
 
         if (data.success) {
           toast.success("Order placed successfully");
@@ -120,38 +127,30 @@ const Cart = () => {
         } else {
           toast.error(data.message || "Failed to place order");
         }
-      }
-      else {
-        //Place Order with Stripe
-        const { data } = await axios.post(
-          "/api/order/stripe",
-          {
-            items: cartArray.map((item) => ({
-              product: item._id,
-              quantity: item.quantity,
-            })),
-            address: selectedAddress._id,
-          },
-          {
-            withCredentials: true,
-          }
-        );
+      } else {
+        const { data } = await axios.post("/api/order/stripe", orderData, config);
         if (data.success) {
           window.location.replace(data.url);
-        }
-        else {
+        } else {
           toast.error(data.message || "Failed to place order");
         }
       }
-
     } catch (error) {
-      toast.error(error.message);
+      if (error.response?.status === 401) {
+        setShowUserLogin(true);
+      } else {
+        toast.error(error.response?.data?.message || "Failed to place order");
+      }
     }
   };
 
   useEffect(() => {
-    if (user) {
+    // Only fetch addresses if user is authenticated
+    if (user?._id && localStorage.getItem('userToken')) {
       getUserAddress();
+    } else {
+      setAddresses([]);
+      setSelectedAddress(null);
     }
   }, [user]);
 

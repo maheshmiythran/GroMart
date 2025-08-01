@@ -14,25 +14,10 @@ const Navbar = () => {
     setSearchQuery,
     searchQuery,
     getCartCount,
-    axios
+    axios,
+    handleUserLogout
   } = useAppContext();
 
-  const logout = async () => {
-    try {
-      const { data } = await axios.get("/api/user/logout");
-      if (data.success) {
-        setUser(null);
-        setSearchQuery("");
-        toast.success("Logged out successfully");
-        navigate("/");
-      }
-      else {
-        toast.error("Logout failed");
-      }
-    } catch (error) {
-      toast.error(error.message || "Logout failed");
-    }
-  };
 
   useEffect(() => {
     if (searchQuery.length > 0) {
@@ -100,7 +85,7 @@ const Navbar = () => {
                 My Orders{" "}
               </li>
               <li
-                onClick={logout}
+                onClick={handleUserLogout}
                 className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer"
               >
                 {" "}
@@ -170,7 +155,7 @@ const Navbar = () => {
             </button>
           ) : (
             <button
-              onClick={logout}
+              onClick={handleUserLogout}
               style={{ backgroundColor: "#4fbf8b" }}
               className="cursor-pointer px-8 py-2 transition text-white rounded-full"
             >

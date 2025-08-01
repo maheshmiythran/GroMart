@@ -3,7 +3,7 @@ import { useAppContext } from '../context/AppContext';
 import { toast } from 'react-hot-toast';
 
 const Login = () => {
-  const { setShowUserLogin, setUser, axios, navigate } = useAppContext();
+  const { setShowUserLogin, setUser, axios, navigate, fetchUser } = useAppContext();
 
   const [state, setState] = useState('login');
   const [name, setName] = useState('');
@@ -66,8 +66,7 @@ const Login = () => {
       );
 
       if (data.success) {
-        // Set user and redirect
-        setUser(data.user);
+        await fetchUser(); // This will set user and cart
         navigate('/');
         setShowUserLogin(false);
         toast.success(
