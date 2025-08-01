@@ -20,7 +20,7 @@ await connectDB();
 await connectCloudinary();
 
 //Allow multiple origins
-const allowedOrigins=['http://localhost:5173','https://gro-mart.vercel.app',"https://gro-mart.vercel.app/seller"]
+const allowedOrigins=['http://localhost:5173','https://gro-mart.vercel.app',"https://gro-mart.vercel.app/seller","https://gro-mart.vercel.app/seller/orders"]
 
 app.post(
   '/api/webhook/stripe',
