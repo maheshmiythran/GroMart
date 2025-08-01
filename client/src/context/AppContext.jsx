@@ -23,17 +23,30 @@ export const AppContextProvider = ({ children }) => {
   //Fetch Seller Status
   const fetchSeller = async () => {
     try {
-      const {data} = await axios.get("/api/seller/is-auth", { withCredentials: true });
+      const { data } = await axios.get('/api/seller/is-auth', { withCredentials: true });
       if (data.success) {
         setIsSeller(true);
-      }
-      else {
+      } else {
         setIsSeller(false);
+        if (window.location.pathname.includes('seller')) {
+          navigate('/seller');
+        }
       }
     } catch (error) {
-        setIsSeller(false);
+      console.error('Seller auth error:', error.message);
+      setIsSeller(false);
+      if (window.location.pathname.includes('seller')) {
+        navigate('/seller');
+      }
     }
   };
+
+  // Add useEffect to check seller status on mount and route change
+  useEffect(() => {
+    if (window.location.pathname.includes('seller')) {
+      fetchSeller();
+    }
+  }, [window.location.pathname]);
 
   // Fetch User Auth Status, User Data and Cart Items
   const fetchUser = async () => {
@@ -150,7 +163,6 @@ export const AppContextProvider = ({ children }) => {
 
   useEffect(() => {
     fetchUser();
-    fetchSeller();
     fetchProducts();
   }, []);
 

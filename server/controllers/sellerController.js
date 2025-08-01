@@ -5,31 +5,27 @@ import jwt from "jsonwebtoken";
 
 
 export const sellerLogin = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        if (password === process.env.SELLER_PASSWORD && email === process.env.SELLER_EMAIL) {
-            const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  try {
+    const { email, password } = req.body;
+    if (password === process.env.SELLER_PASSWORD && email === process.env.SELLER_EMAIL) {
+      const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-            res.cookie('sellerToken', token, {
-            httpOnly: true,
-            secure: true,         // 🚨 This breaks on localhost if you're not using HTTPS
-            sameSite: 'none',     // 🚨 Also needs HTTPS
-            maxAge: 7 * 24 * 60 * 60 * 1000
-          });
+      res.cookie('sellerToken', token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
 
-            return res.json({ success: true, message: 'Logged In' });
-        }
-
-        else {
-            return res.json({ success: false, message: 'Invalid Credentials' });
-        }
-    } catch (error) {
-        console.log(error);
-        return res.json({ success: false, message: error.message });
-
+      return res.json({ success: true, message: 'Login successful' });
+    } else {
+      return res.json({ success: false, message: 'Invalid credentials' });
     }
-
-}
+  } catch (error) {
+    console.error('Login error:', error.message);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 // Seller Auth : /api/seller/is-auth
 
