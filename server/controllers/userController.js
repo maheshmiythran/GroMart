@@ -26,6 +26,7 @@ export const register = async (req, res)=>{
         secure: true, // Must be true in production (https)
         sameSite: 'None', // VERY IMPORTANT for cross-origin cookies
         maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
+        
         });
 
 
@@ -64,6 +65,7 @@ export const login = async (req, res)=>{
         secure: true, // Must be true in production (https)
         sameSite: 'None', // VERY IMPORTANT for cross-origin cookies
         maxAge: 1 * 24 * 60 * 60 * 1000, // 1 week
+        path: '/'
         });
 
         return res.json({success: true, user: {email: user.email, name: user.name}})
