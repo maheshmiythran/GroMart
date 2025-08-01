@@ -16,6 +16,23 @@ const authUser = async (req, res, next) => {
       req.user = decoded;
       next();
     } catch (error) {
+      // If token is expired
+      if (error.name === 'TokenExpiredError') {
+        // Clear the cookie
+        const isProduction = process.env.NODE_ENV === 'production';
+        res.clearCookie('userToken', {
+          httpOnly: true,
+          secure: isProduction,
+          sameSite: isProduction ? 'None' : 'Lax',
+          path: '/', // Make sure this matches how the cookie was set
+        });
+
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Session expired. Please log in again.' 
+        });
+      }
+
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid token' 
