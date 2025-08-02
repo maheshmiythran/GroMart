@@ -21,12 +21,14 @@ export const register = async (req, res)=>{
         })
         const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '7d'})
 
+        const isProduction = process.env.NODE_ENV === 'production';
+
         res.cookie("userToken", token, {
-        httpOnly: true,
-        secure: true, // Must be true in production (https)
-        sameSite: 'None', // VERY IMPORTANT for cross-origin cookies
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
-        
+            httpOnly: true,
+            secure: isProduction,           // only true in prod
+            sameSite: isProduction ? 'None' : 'Lax',  // more relaxed in dev
+            path: '/',
+            maxAge: 1 * 24 * 60 * 60 * 1000
         });
 
 
@@ -60,12 +62,14 @@ export const login = async (req, res)=>{
 
         const token = jwt.sign({id: user._id}, process.env.JWT_SECRET, {expiresIn: '1d'})
 
+        const isProduction = process.env.NODE_ENV === 'production';
+
         res.cookie("userToken", token, {
-        httpOnly: true,
-        secure: true, // Must be true in production (https)
-        sameSite: 'None', // VERY IMPORTANT for cross-origin cookies
-        maxAge: 1 * 24 * 60 * 60 * 1000, // 1 week
-        path: '/'
+            httpOnly: true,
+            secure: isProduction,           // only true in prod
+            sameSite: isProduction ? 'None' : 'Lax',  // more relaxed in dev
+            path: '/',
+            maxAge: 1 * 24 * 60 * 60 * 1000
         });
 
         return res.json({success: true, user: {email: user.email, name: user.name}})
@@ -104,16 +108,19 @@ export const isAuth = async (req, res) => {
 
 // Logout User : /api/user/logout
 export const logout = async (req, res) => {
-    try {
-        res.clearCookie('userToken', {
-          httpOnly: true,
-          secure: true, // must match login
-          sameSite: 'None', // must match login
-          path: '/', // must match login
-        });
-        return res.json({success: true, message: 'Logged out'});
-    } catch (error) {
-        console.log(error);
-        res.json({success: false, message: error.message})
-    }       
-}
+  try {
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    res.clearCookie("userToken", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? 'None' : 'Lax',
+      path: '/'
+    });
+
+    return res.json({ success: true, message: 'Logged out' });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: error.message });
+  }
+};

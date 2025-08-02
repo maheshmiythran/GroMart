@@ -12,31 +12,41 @@ const EditAddress = () => {
     state: "",
     country: "",
   });
+
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAddress = async () => {
       try {
         const { data } = await axios.get(`/api/address/${id}`);
-        if (data.success) {
+        if (data.success && data.address) {
           setFormData(data.address);
         } else {
-          toast.error(data.message);
+          toast.error(data.message || "Address not found");
+          navigate("/cart");
         }
       } catch (err) {
         toast.error("Failed to fetch address");
+        navigate("/cart");
       }
     };
     fetchAddress();
-  }, [id]);
+  }, [id, axios, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!user || !user._id) {
+      toast.error("Please log in to update your address");
+      return;
+    }
+
     try {
       const { data } = await axios.put(`/api/address/edit/${id}`, {
         ...formData,
         userId: user._id,
       });
+
       if (data.success) {
         toast.success("Address updated!");
         navigate("/cart");
@@ -47,6 +57,8 @@ const EditAddress = () => {
       toast.error("Update failed");
     }
   };
+
+  const isFormValid = Object.values(formData).every(Boolean);
 
   return (
     <div className="max-w-lg mx-auto mt-12 p-4 border border-gray-300 rounded">
@@ -67,7 +79,8 @@ const EditAddress = () => {
         ))}
         <button
           type="submit"
-          className="bg-primary text-white px-4 py-2 w-full"
+          className="bg-primary text-white px-4 py-2 w-full disabled:opacity-50"
+          disabled={!isFormValid}
         >
           Save Changes
         </button>
