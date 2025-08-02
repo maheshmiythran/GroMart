@@ -13,7 +13,8 @@ const authUser = async (req, res, next) => {
 
     try {
       const decoded = jwt.verify(userToken, process.env.JWT_SECRET);
-      req.user = decoded;
+      req.user = { _id: decoded.id }; // or decoded._id if that’s how you stored it
+
       next();
     } catch (error) {
       // If token is expired

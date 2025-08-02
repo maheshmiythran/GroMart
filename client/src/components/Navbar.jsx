@@ -18,12 +18,16 @@ const Navbar = () => {
     handleUserLogout
   } = useAppContext();
 
-
   useEffect(() => {
     if (searchQuery.length > 0) {
       navigate("/products");
     }
   }, [searchQuery]);
+
+  useEffect(() => {
+    console.log("Navbar user state:", user);
+  }, [user]);
+
   return (
     <nav className="z-50 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white top-0 left-0 w-full transition-all">
       <NavLink to="/" onClick={() => setOpen(false)}>
@@ -78,18 +82,16 @@ const Navbar = () => {
             <img src={assets.profile_icon} className="w-10" alt="profile" />
             <ul className="hidden group-hover:flex absolute top-10 right-0 bg-white shadow border border-gray-200 py-2.5 w-30 rounded-md flex-col text-sm">
               <li
-                onClick={() => navigate("my-orders")}
+                onClick={() => navigate("/my-orders")}
                 className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer"
               >
-                {" "}
-                My Orders{" "}
+                My Orders
               </li>
               <li
                 onClick={handleUserLogout}
                 className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer"
               >
-                {" "}
-                Logout{" "}
+                Logout
               </li>
             </ul>
           </div>
@@ -126,7 +128,8 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {open && (
-        <div className={`${open ? "flex" : "hidden"} absolute top-[79px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden z-50`}
+        <div
+          className={`${open ? "flex" : "hidden"} absolute top-[79px] left-0 w-full bg-white shadow-md py-4 flex-col items-start gap-2 px-5 text-sm md:hidden z-50`}
         >
           <NavLink to="/" onClick={() => setOpen(false)}>
             Home
@@ -134,15 +137,27 @@ const Navbar = () => {
           <NavLink to="/products" onClick={() => setOpen(false)}>
             All Products
           </NavLink>
-          {user && (
-            <NavLink to="/orders" onClick={() => setOpen(false)}>
-              My Orders
-            </NavLink>
-          )}
           <NavLink to="/contact" onClick={() => setOpen(false)}>
             Contact
           </NavLink>
-          {!user ? (
+
+          {user ? (
+            <>
+              <NavLink to="/my-orders" onClick={() => setOpen(false)}>
+                My Orders
+              </NavLink>
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  handleUserLogout();
+                }}
+                style={{ backgroundColor: "#4fbf8b" }}
+                className="cursor-pointer px-8 py-2 transition text-white rounded-full"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
             <button
               onClick={() => {
                 setOpen(false);
@@ -152,14 +167,6 @@ const Navbar = () => {
               className="cursor-pointer px-8 py-2 transition text-white rounded-full"
             >
               Login
-            </button>
-          ) : (
-            <button
-              onClick={handleUserLogout}
-              style={{ backgroundColor: "#4fbf8b" }}
-              className="cursor-pointer px-8 py-2 transition text-white rounded-full"
-            >
-              Logout
             </button>
           )}
         </div>

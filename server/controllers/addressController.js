@@ -3,10 +3,11 @@ import Address from "../models/Address.js";
 // @route   POST /api/address/add
 export const addAddress = async (req, res) => {
   try {
-    const { address, userId } = req.body;
+    const userId = req.user._id;
+    const { address } = req.body;
 
-    if (!address || !userId) {
-      return res.status(400).json({ success: false, message: "Missing address or userId" });
+    if (!address) {
+      return res.status(400).json({ success: false, message: "Missing address data" });
     }
 
     await Address.create({ ...address, userId });
@@ -20,12 +21,7 @@ export const addAddress = async (req, res) => {
 // @route   GET /api/address/get?userId=...
 export const getAddress = async (req, res) => {
   try {
-    const { userId } = req.query;
-
-    if (!userId) {
-      return res.status(400).json({ success: false, message: "Missing userId" });
-    }
-
+    const userId = req.user._id;
     const addresses = await Address.find({ userId });
     res.json({ success: true, addresses });
   } catch (error) {
@@ -33,6 +29,7 @@ export const getAddress = async (req, res) => {
     res.status(500).json({ success: false, message: error.message || "Failed to fetch addresses" });
   }
 };
+
 
 // @route   PUT /api/address/edit/:id
 export const editAddress = async (req, res) => {

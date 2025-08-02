@@ -30,8 +30,8 @@ export const placeOrderCOD = async (req, res) => {
       address,
       paymentType: "COD",
     });
-    return res.json({ success: true, message: "Order Placed Successfully" });
     await User.findByIdAndUpdate(userId, { cartItems: {} });
+    return res.json({ success: true, message: "Order Placed Successfully" });
   } catch (error) {
     console.error("Error placing COD order:", error);
     res.json({ success: false, message: error.message });

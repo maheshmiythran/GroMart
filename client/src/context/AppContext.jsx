@@ -15,6 +15,7 @@ export const AppContextProvider = ({ children }) => {
   const [isSeller, setIsSeller] = useState(false);
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
+  const [userAddress, setUserAddress] = useState(null);
 
 
   const [cartItems, setCartItems] = useState({});
@@ -51,32 +52,31 @@ export const AppContextProvider = ({ children }) => {
   // Fetch User Auth Status, User Data and Cart Items
   const fetchUser = async () => {
     try {
-      const { data } = await axios.get('/api/user/is-auth', { withCredentials: true });
-      if (data.success) {
-        setUser(data.user);
-        // Convert cart items array to object format
-        const cartObj = {};
-        if (Array.isArray(data.user.cartItems)) {
-          data.user.cartItems.forEach(item => {
-            cartObj[item.productId] = item.quantity;
-          });
-          setCartItems(cartObj);
-        } else {
-          setCartItems(data.user.cartItems || {});
+      const res = await axios.get("/api/user/is-auth", { withCredentials: true });
+
+      if (res.data.success) {
+        setUser(res.data.user); // user = {_id, email, name, cartItems}
+        
+        // Fetch address using protected route
+        const addrRes = await axios.get("/api/address/get", { withCredentials: true });
+        if (addrRes.data.success) {
+          setUserAddress(addrRes.data.addresses);
         }
       } else {
         setUser(null);
-        setCartItems({});
+        setUserAddress([]);
       }
-    } catch (error) {
-      if (error.response?.status === 401) {
-        setUser(null);
-        setCartItems({});
-      } else {
-        console.error('Error fetching user auth:', error.message);
-      }
+    } catch (err) {
+      console.error("Error fetching user auth:", err);
+      setUser(null);
+      setUserAddress([]);
     }
   };
+
+  useEffect(() => {
+  fetchUser();
+}, []);
+
 
 
   // Fetch All Products
@@ -317,6 +317,8 @@ export const AppContextProvider = ({ children }) => {
     handleUserLogin,
     handleUserLogout,
     fetchUser, // <-- ADD THIS LINE
+    userAddress,
+    setUserAddress,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

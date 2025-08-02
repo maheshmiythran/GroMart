@@ -44,19 +44,16 @@ const AddAddress = () => {
     }
 
     try {
-      const { data } = await axios.post("/api/address/add", {
-        address,
-        userId: user._id,
-      });
+      const { data } = await axios.post("/api/address/add", {address}); // ✨ send only address
       if (data.success) {
         toast.success(data.message || "Address added successfully!");
         navigate("/cart");
       } else {
         toast.error(data.message || "Something went wrong");
       }
-    } catch (err) {
+    } catch (error) {
       toast.error("Failed to add address");
-      console.error("Error adding address:", err);
+      console.error("Error adding address:", error);
     }
   };
 
