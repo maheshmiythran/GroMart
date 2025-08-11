@@ -85,7 +85,7 @@ export const login = async (req, res)=>{
 
 export const isAuth = async (req, res) => {
   try {
-    const userId = req.user?.id; // Comes from authUser middleware
+    req.user = { _id: decoded.id };
 
     if (!userId) {
       console.error('User ID not found in request');
