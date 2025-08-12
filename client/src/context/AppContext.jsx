@@ -66,7 +66,7 @@ export const AppContextProvider = ({ children }) => {
         setUser(null);
         setUserAddress([]);
       }
-    } catch (err) {
+    } catch (error) {
       console.error("Error fetching user auth:");
       setUser(null);
       setUserAddress([]);

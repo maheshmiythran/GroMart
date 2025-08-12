@@ -85,17 +85,14 @@ export const login = async (req, res)=>{
 
 export const isAuth = async (req, res) => {
   try {
-    req.user = { _id: decoded.id };
+    const userId = req.user?.id; // from authUser middleware
 
     if (!userId) {
-      console.error('User ID not found in request');
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    const user = await User.findById(userId).select('-password'); // Exclude password
-
+    const user = await User.findById(userId).select('-password'); // exclude password
     if (!user) {
-      console.error('User not found in database');
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 

@@ -48,37 +48,52 @@ const Login = () => {
     }, 300); // match duration below
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    // Validation for register
-    if (state === 'register' && password !== confirmPassword) {
-      toast.error("Passwords do not match");
-      return;
-    }
+  // Validate passwords on register
+  if (state === 'register' && password !== confirmPassword) {
+    toast.error("Passwords do not match");
+    return;
+  }
 
-    try {
-      // Send API request to /api/user/login or /api/user/register
-      const { data } = await axios.post(
-        `/api/user/${state}`,
-        { name, email, password },
-        { withCredentials: true }
-      );
+  try {
+    // Always use full URL if backend is on another domain
+    const { data } = await axios.post(
+      `/api/user/${state}`,
+      { name, email, password },
+      {
+        withCredentials: true, // ✅ send/receive cookies
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
 
-      if (data.success) {
-        await fetchUser(); // This will set user and cart
+    if (data.success) {
+      // ✅ Delay fetchUser slightly to ensure cookies are set
+      setTimeout(async () => {
+        await fetchUser();
         navigate('/');
         setShowUserLogin(false);
         toast.success(
-          state === 'register' ? 'Registered successfully!' : 'Logged in successfully!'
+          state === 'register'
+            ? 'Registered successfully!'
+            : 'Logged in successfully!'
         );
-      } else {
-        toast.error(data.message || "Something went wrong");
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || error.message || "Something went wrong");
+      }, 50);
+    } else {
+      toast.error(data.message || "Something went wrong");
     }
-  };
+  } catch (error) {
+    toast.error(
+      error.response?.data?.message ||
+      error.message ||
+      "Something went wrong"
+    );
+  }
+};
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm overflow-y-auto">

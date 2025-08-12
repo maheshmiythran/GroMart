@@ -90,9 +90,9 @@ const Cart = () => {
   const placeOrder = async () => {
     try {
       // Check authentication first
-      if (!user?._id || !localStorage.getItem('userToken')) {
-        setShowUserLogin(true);
-        return;
+      if (!user?._id) {
+          setShowUserLogin(true);
+          return;
       }
 
       if (!selectedAddress) {
@@ -145,13 +145,13 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    // Only fetch addresses if user is authenticated
-    if (user?._id && localStorage.getItem('userToken')) {
+  // Only fetch addresses if user is authenticated
+  if (user?._id) {
       getUserAddress();
     } else {
       setAddresses([]);
       setSelectedAddress(null);
-    }
+  }
   }, [user]);
 
   return products.length > 0 && cartItems ? (
