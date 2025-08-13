@@ -3,7 +3,7 @@ import Address from "../models/Address.js";
 // @route   POST /api/address/add
 export const addAddress = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.id;
     const { address } = req.body;
 
     if (!address) {
@@ -21,7 +21,7 @@ export const addAddress = async (req, res) => {
 // @route   GET /api/address/get?userId=...
 export const getAddress = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.id;
     const addresses = await Address.find({ userId });
     res.json({ success: true, addresses });
   } catch (error) {
