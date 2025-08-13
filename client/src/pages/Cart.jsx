@@ -111,7 +111,7 @@ const Cart = () => {
       const config = {
         withCredentials: true,
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+          withCredentials: true,
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
         }
@@ -153,6 +153,8 @@ const Cart = () => {
       setSelectedAddress(null);
   }
   }, [user]);
+
+  
 
   return products.length > 0 && cartItems ? (
     <div className="flex flex-col md:flex-row mt-16">
