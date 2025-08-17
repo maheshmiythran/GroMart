@@ -22,7 +22,7 @@ await connectCloudinary();
 //Allow multiple origins
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://gromart.com'
+  'https://gro-mart.vercel.app'
 ];
 
 app.post(
