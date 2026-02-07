@@ -209,3 +209,76 @@ export const getAllOrders = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+// Seller Analytics : /api/order/seller-analytics
+export const getSellerAnalytics = async (req, res) => {
+  try {
+    const orders = await Order.find({
+      $or: [{ paymentType: "COD" }, { isPaid: true }],
+    }).populate("items.product");
+
+    const totalOrders = orders.length;
+    const totalRevenue = orders.reduce((acc, order) => acc + order.amount, 0);
+    const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+    // Monthly Revenue
+    const monthlyRevenue = {};
+    orders.forEach((order) => {
+      const date = new Date(order.createdAt);
+      const month = date.toLocaleString('default', { month: 'short' });
+      monthlyRevenue[month] = (monthlyRevenue[month] || 0) + order.amount;
+    });
+
+    const monthlyRevenueData = Object.keys(monthlyRevenue).map((key) => ({
+      name: key,
+      revenue: monthlyRevenue[key],
+    }));
+
+    // Top Selling Products
+    const productSales = {};
+    orders.forEach((order) => {
+      order.items.forEach((item) => {
+        if (item.product) {
+          const productName = item.product.name;
+          productSales[productName] = (productSales[productName] || 0) + item.quantity;
+        }
+      });
+    });
+
+    const topProducts = Object.keys(productSales)
+      .map((key) => ({ name: key, sales: productSales[key] }))
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 5);
+
+    // Category Distribution (Mock or Derived if category exists in product)
+    // Since we populated product, we might access category, but let's stick to status for now or simple category if available
+    const categoryDist = {};
+    orders.forEach(order => {
+      order.items.forEach(item => {
+        if (item.product && item.product.category) {
+          categoryDist[item.product.category] = (categoryDist[item.product.category] || 0) + 1
+        }
+      })
+    })
+
+    const categoryData = Object.keys(categoryDist).map(key => ({
+      name: key,
+      value: categoryDist[key]
+    }))
+
+
+    res.json({
+      success: true,
+      analytics: {
+        totalOrders,
+        totalRevenue,
+        avgOrderValue,
+        monthlyRevenueData,
+        topProducts,
+        categoryData
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching analytics:", error);
+    res.json({ success: false, message: error.message });
+  }
+};

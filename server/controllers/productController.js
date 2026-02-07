@@ -5,7 +5,7 @@ import Order from "../models/Order.js";
 export const AddProduct = async (req, res) => {
     try {
         let productData = JSON.parse(req.body.productData);
-        
+
         const images = req.files;
 
         let imagesUrl = await Promise.all(
@@ -15,7 +15,7 @@ export const AddProduct = async (req, res) => {
             })
         );
 
-        await Product.create({...productData, image: imagesUrl});
+        await Product.create({ ...productData, image: imagesUrl });
         res.json({
             success: true,
             message: "Product added successfully"
@@ -24,7 +24,7 @@ export const AddProduct = async (req, res) => {
     } catch (error) {
 
         console.log(error.message);
-        res.json({success: false,message: error.message});
+        res.json({ success: false, message: error.message });
     }
 }
 
@@ -33,10 +33,10 @@ export const AddProduct = async (req, res) => {
 export const productList = async (req, res) => {
     try {
         const products = await Product.find({})
-        res.json({success: true,products: products});
+        res.json({ success: true, products: products });
     } catch (error) {
         console.log(error.message);
-        res.json({success: false, message: error.message});
+        res.json({ success: false, message: error.message });
     }
 }
 
@@ -46,10 +46,10 @@ export const ProductById = async (req, res) => {
     try {
         const { id } = req.body;
         const product = await Product.findById(id);
-        res.json({success: true, product: product});
+        res.json({ success: true, product: product });
     } catch (error) {
         console.log(error.message);
-        res.json({success: false, message: error.message});
+        res.json({ success: false, message: error.message });
     }
 
 }
@@ -60,11 +60,11 @@ export const ChangeStock = async (req, res) => {
     try {
         const { id, inStock } = req.body;
         await Product.findByIdAndUpdate(id, { inStock });
-        res.json({success: true, message: "Stock updated successfully"});
+        res.json({ success: true, message: "Stock updated successfully" });
     } catch (error) {
         console.log(error.message);
-        res.json({success: false, message: error.message});
-    }   
+        res.json({ success: false, message: error.message });
+    }
 
 }
 
@@ -73,7 +73,7 @@ export const deleteProduct = async (req, res) => {
     try {
         const { id } = req.params;
         const product = await Product.findByIdAndDelete(id);
-        
+
         if (!product) {
             return res.status(404).json({ success: false, message: "Product not found" });
         }
@@ -87,11 +87,23 @@ export const deleteProduct = async (req, res) => {
 
 // Update Status  : /api/product/update-status/:id
 export const updateOrderStatus = async (req, res) => {
-  const { orderId, status } = req.body;
-  try {
-    await Order.findByIdAndUpdate(orderId, { status });
-    res.json({ success: true, message: "Order status updated" });
-  } catch (error) {
-    res.json({ success: false, message: error.message });
-  }
+    const { orderId, status } = req.body;
+    try {
+        await Order.findByIdAndUpdate(orderId, { status });
+        res.json({ success: true, message: "Order status updated" });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
 };
+
+// Update Product : /api/product/update
+export const updateProduct = async (req, res) => {
+    try {
+        const { id, updatedData } = req.body;
+        await Product.findByIdAndUpdate(id, updatedData);
+        res.json({ success: true, message: "Product updated successfully" });
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message });
+    }
+}

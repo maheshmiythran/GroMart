@@ -10,7 +10,8 @@ const SellerLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
 
   const sidebarLinks = [
-    { name: 'Add Product', path: '/seller', icon: assets.add_icon },
+    { name: 'Analytics', path: '/seller', icon: assets.order_icon }, // using order_icon as placeholder or if available
+    { name: 'Add Product', path: '/seller/add-product', icon: assets.add_icon },
     {
       name: 'ProductList',
       path: '/seller/product-list',
