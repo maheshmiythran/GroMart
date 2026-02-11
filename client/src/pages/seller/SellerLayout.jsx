@@ -18,6 +18,7 @@ const SellerLayout = () => {
       icon: assets.product_list_icon,
     },
     { name: 'Orders', path: '/seller/orders', icon: assets.order_icon },
+    { name: 'Users', path: '/seller/users', icon: assets.profile_icon },
   ];
 
   const onLogoutClick = async () => {

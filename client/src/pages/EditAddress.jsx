@@ -64,19 +64,90 @@ const EditAddress = () => {
     <div className="max-w-lg mx-auto mt-12 p-4 border border-gray-300 rounded">
       <h2 className="text-xl font-semibold mb-4">Edit Address</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {["street", "city", "state", "country"].map((field) => (
+        <div className="grid grid-cols-2 gap-4">
           <input
-            key={field}
             type="text"
-            placeholder={field}
-            value={formData[field]}
-            onChange={(e) =>
-              setFormData({ ...formData, [field]: e.target.value })
-            }
+            placeholder="First Name"
+            value={formData.firstName || ''}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
             className="w-full p-2 border border-gray-300"
             required
           />
-        ))}
+          <input
+            type="text"
+            placeholder="Last Name"
+            value={formData.lastName || ''}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+            className="w-full p-2 border border-gray-300"
+            required
+          />
+        </div>
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={formData.email || ''}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          className="w-full p-2 border border-gray-300"
+          required
+        />
+
+        <input
+          type="text"
+          placeholder="Street Address"
+          value={formData.street || ''}
+          onChange={(e) => setFormData({ ...formData, street: e.target.value })}
+          className="w-full p-2 border border-gray-300"
+          required
+        />
+
+        <div className="grid grid-cols-2 gap-4">
+          <input
+            type="text"
+            placeholder="City"
+            value={formData.city || ''}
+            onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+            className="w-full p-2 border border-gray-300"
+            required
+          />
+          <input
+            type="text"
+            placeholder="State"
+            value={formData.state || ''}
+            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+            className="w-full p-2 border border-gray-300"
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <input
+            type="number"
+            placeholder="Zip Code"
+            value={formData.zipcode || ''}
+            onChange={(e) => setFormData({ ...formData, zipcode: e.target.value })}
+            className="w-full p-2 border border-gray-300"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Country"
+            value={formData.country || ''}
+            onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+            className="w-full p-2 border border-gray-300"
+            required
+          />
+        </div>
+
+        <input
+          type="text"
+          placeholder="Phone Number"
+          value={formData.phone || ''}
+          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+          className="w-full p-2 border border-gray-300"
+          required
+        />
+
         <button
           type="submit"
           className="bg-primary text-white px-4 py-2 w-full disabled:opacity-50"

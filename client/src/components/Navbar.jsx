@@ -45,6 +45,8 @@ const Navbar = () => {
         >
           <input
             id="search-input"
+            name="search-global"
+            autoComplete="off"
             onChange={(e) => setSearchQuery(e.target.value)}
             className="py-1.5 w-full bg-transparent outline-none placeholder-gray-500"
             type="text"
@@ -91,8 +93,14 @@ const Navbar = () => {
               className="hidden group-hover:flex absolute top-10 right-0 bg-white shadow border border-gray-200 py-2.5 w-30 rounded-md flex-col text-sm"
             >
               <li
+                onClick={() => { navigate("/account"); setSearchQuery(''); }}
+                className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer"
+              >
+                My Account
+              </li>
+              <li
                 id="my-orders-link"
-                onClick={() => navigate("/my-orders")}
+                onClick={() => { navigate("/my-orders"); setSearchQuery(''); }}
                 className="p-1.5 pl-3 hover:bg-primary/10 cursor-pointer"
               >
                 My Orders
@@ -158,7 +166,10 @@ const Navbar = () => {
 
           {user ? (
             <>
-              <NavLink id="mobile-my-orders" to="/my-orders" onClick={() => setOpen(false)}>
+              <NavLink to="/account" onClick={() => { setOpen(false); setSearchQuery(''); }}>
+                My Account
+              </NavLink>
+              <NavLink id="mobile-my-orders" to="/my-orders" onClick={() => { setOpen(false); setSearchQuery(''); }}>
                 My Orders
               </NavLink>
               <button

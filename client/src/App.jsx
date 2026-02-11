@@ -18,6 +18,7 @@ import AddProduct from './pages/seller/AddProduct'
 import ProductList from './pages/seller/ProductList'
 import Orders from './pages/seller/Orders'
 import Analytics from './pages/seller/Analytics'
+import UserManagement from './pages/seller/UserManagement'
 import Loading from './components/Loading'
 import BestSeller from './components/BestSeller'
 import Offers from './pages/Offers'
@@ -28,6 +29,7 @@ import Returns from './pages/Returns'
 import Payment from './pages/PaymentMethod'
 import TrackOrder from './pages/TrackOrder'
 import EditAddress from './pages/EditAddress'
+import Account from './pages/Account'
 const App = () => {
 
   const isSellerPath = useLocation().pathname.includes('seller')
@@ -47,12 +49,14 @@ const App = () => {
           <Route path="/add-address" element={<AddAddress />} />
           <Route path="/edit-address/:id" element={<EditAddress />} />
           <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/account" element={<Account />} />
           <Route path="/loader" element={<Loading />} />
           <Route path="/seller" element={isSeller ? <SellerLayout /> : <SellerLogin />}>
             <Route index element={<Analytics />} />
             <Route path='add-product' element={<AddProduct />} />
             <Route path='product-list' element={<ProductList />} />
             <Route path='orders' element={<Orders />} />
+            <Route path='users' element={<UserManagement />} />
           </Route>
           {/* footerLinks */}
           <Route path="/offers" element={<Offers />} />
