@@ -12,7 +12,7 @@ const SellerLogin = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-   const onSubmitHandler = async (event) => {
+  const onSubmitHandler = async (event) => {
     event.preventDefault(); // ✅ move to top
     setLoading(true);       // ✅ start loading
 
@@ -24,6 +24,9 @@ const SellerLogin = () => {
       );
 
       if (data.success) {
+        if (data.token) {
+          localStorage.setItem('sellerToken', data.token);
+        }
         setIsSeller(true);
         toast.success('Seller logged in successfully!');
         navigate('/seller');
@@ -76,9 +79,8 @@ const SellerLogin = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoFocus
-            className={`w-full mt-1 p-2 border rounded-md outline-primary transition-all duration-200 ${
-              error ? 'border-red-400' : 'border-gray-300'
-            } focus:ring-2 focus:ring-primary/30`}
+            className={`w-full mt-1 p-2 border rounded-md outline-primary transition-all duration-200 ${error ? 'border-red-400' : 'border-gray-300'
+              } focus:ring-2 focus:ring-primary/30`}
           />
         </div>
 
@@ -91,9 +93,8 @@ const SellerLogin = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className={`w-full mt-1 p-2 pr-10 border rounded-md outline-primary transition-all duration-200 ${
-              error ? 'border-red-400' : 'border-gray-300'
-            } focus:ring-2 focus:ring-primary/30`}
+            className={`w-full mt-1 p-2 pr-10 border rounded-md outline-primary transition-all duration-200 ${error ? 'border-red-400' : 'border-gray-300'
+              } focus:ring-2 focus:ring-primary/30`}
           />
           <span
             onClick={() => setShowPassword(!showPassword)}

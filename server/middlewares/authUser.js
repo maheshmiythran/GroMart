@@ -4,15 +4,21 @@ const authUser = async (req, res, next) => {
   try {
     const { userToken } = req.cookies;
 
-    if (!userToken) {
-      return res.status(401).json({ 
-        success: false, 
-        message: 'No authentication token provided' 
+    // Check for token in headers if not in cookies
+    let token = userToken;
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'No authentication token provided'
       });
     }
 
     try {
-      const decoded = jwt.verify(userToken, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = { id: decoded.id };
 
       next();
@@ -28,22 +34,22 @@ const authUser = async (req, res, next) => {
           path: '/', // Make sure this matches how the cookie was set
         });
 
-        return res.status(401).json({ 
-          success: false, 
-          message: 'Session expired. Please log in again.' 
+        return res.status(401).json({
+          success: false,
+          message: 'Session expired. Please log in again.'
         });
       }
 
-      return res.status(401).json({ 
-        success: false, 
-        message: 'Invalid token' 
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid token'
       });
     }
   } catch (error) {
     console.error('Auth middleware error:', error);
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Internal server error' 
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
     });
   }
 };

@@ -21,6 +21,36 @@ export const AppContextProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Add Axios interceptor to attach token to all requests
+  useEffect(() => {
+    const requestInterceptor = axios.interceptors.request.use(
+      (config) => {
+        // Check if we have a token (user or seller)
+        // Note: In a real app with multiple roles, you might need more complex logic
+        // But since we are attaching "Bearer <token>", the backend middleware will decode it
+        // and check if it's a valid user or seller token.
+
+        // Priority to seller token if we are in seller mode
+        const sellerToken = localStorage.getItem('sellerToken');
+        const userToken = localStorage.getItem('userToken');
+
+        const token = window.location.pathname.includes('seller') ? (sellerToken || userToken) : (userToken || sellerToken);
+
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+    };
+  }, []);
+
   //Fetch Seller Status
   const fetchSeller = async () => {
     try {
@@ -36,6 +66,7 @@ export const AppContextProvider = ({ children }) => {
     } catch (error) {
       console.error('Seller auth error:', error.message);
       setIsSeller(false);
+      localStorage.removeItem('sellerToken'); // Clear invalid token
       if (window.location.pathname.includes('seller')) {
         navigate('/seller');
       }
@@ -56,7 +87,7 @@ export const AppContextProvider = ({ children }) => {
 
       if (res.data.success) {
         setUser(res.data.user); // user = {_id, email, name, cartItems}
-        
+
         // Fetch address using protected route
         const addrRes = await axios.get("/api/address/get", { withCredentials: true });
         if (addrRes.data.success) {
@@ -74,8 +105,8 @@ export const AppContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-  fetchUser();
-}, []);
+    fetchUser();
+  }, []);
 
 
 
@@ -90,7 +121,7 @@ export const AppContextProvider = ({ children }) => {
         toast.error(error.message || "Failed to fetch products");
       }
     } catch (error) {
-      
+
     }
   };
 
@@ -117,7 +148,7 @@ export const AppContextProvider = ({ children }) => {
     setCartItems(cartData);
     toast.success("Removed from cart");
   };
-  
+
   //Update Cart Item Quantity
   const updateCartItem = async (itemId, quantity) => {
     let cartData = structuredClone(cartItems);
@@ -154,11 +185,11 @@ export const AppContextProvider = ({ children }) => {
   };
 
   //Get Cart Total Amount
-  const getCartAmount= () => {
+  const getCartAmount = () => {
     let totalAmount = 0;
     for (const items in cartItems) {
       let itemInfo = products.find((product) => product._id === items);
-      if(cartItems[items] >0){
+      if (cartItems[items] > 0) {
         totalAmount += itemInfo.offerPrice * cartItems[items];
       }
     }
@@ -185,12 +216,12 @@ export const AppContextProvider = ({ children }) => {
       if (!user?._id) return;
 
       try {
-        const { data } = await axios.post("/api/cart/update", 
-          { 
-            userId: user._id, 
-            cartItems 
-          }, 
-          { 
+        const { data } = await axios.post("/api/cart/update",
+          {
+            userId: user._id,
+            cartItems
+          },
+          {
             withCredentials: true,
             headers: {
               'Cache-Control': 'no-cache',
@@ -238,17 +269,18 @@ export const AppContextProvider = ({ children }) => {
 
   const handleSellerLogout = async () => {
     try {
-      const { data } = await axios.get('/api/seller/logout', { 
+      const { data } = await axios.get('/api/seller/logout', {
         withCredentials: true,
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
         }
       });
-      
+
       if (data.success) {
         setIsSeller(false);
         localStorage.removeItem('isSeller');
+        localStorage.removeItem('sellerToken');
         navigate('/seller');
       } else {
         toast.error('Logout failed');
@@ -265,8 +297,9 @@ export const AppContextProvider = ({ children }) => {
       if (data.success) {
         setUser(null);
         setCartItems({});
+        localStorage.removeItem('userToken');
         toast.success('Logged out successfully');
-        
+
       }
     } catch (error) {
       console.error('Logout error:', error);
@@ -278,8 +311,10 @@ export const AppContextProvider = ({ children }) => {
     try {
       const { data } = await axios.post('/api/user/login', { email, password });
       if (data.success) {
-        // DO NOT store token in localStorage
-        await fetchUser(); // This will work because cookie is set
+        if (data.token) {
+          localStorage.setItem('userToken', data.token);
+        }
+        await fetchUser(); // This will work because cookie is set OR header is used
         setShowUserLogin(false);
         toast.success('Login successful');
       } else {

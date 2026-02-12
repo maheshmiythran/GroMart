@@ -21,7 +21,7 @@ export const sellerLogin = async (req, res) => {
 
       // Use these options for both setting and clearing cookies
       res.cookie('sellerToken', token, cookieOptions);
-      return res.json({ success: true, message: 'Login successful' });
+      return res.json({ success: true, token, message: 'Login successful' });
     } else {
       return res.json({ success: false, message: 'Invalid credentials' });
     }
@@ -34,47 +34,47 @@ export const sellerLogin = async (req, res) => {
 // Seller Auth : /api/seller/is-auth
 
 export const isSellerAuth = async (req, res) => {
-    try {
-        // req.seller is set by the authSeller middleware
-        if (!req.seller) {
-            return res.status(401).json({ 
-                success: false, 
-                message: 'Not authenticated' 
-            });
-        }
-
-        return res.json({ 
-            success: true, 
-            seller: { email: req.seller.email },
-            message: 'Seller is authenticated' 
-        });
-    } catch (error) {
-        console.error('Auth check error:', error.message);
-        return res.status(500).json({ 
-            success: false, 
-            message: 'Internal Server Error' 
-        });
+  try {
+    // req.seller is set by the authSeller middleware
+    if (!req.seller) {
+      return res.status(401).json({
+        success: false,
+        message: 'Not authenticated'
+      });
     }
+
+    return res.json({
+      success: true,
+      seller: { email: req.seller.email },
+      message: 'Seller is authenticated'
+    });
+  } catch (error) {
+    console.error('Auth check error:', error.message);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal Server Error'
+    });
+  }
 };
 
 // Seller Logout : /api/seller/logout
 
 export const sellerLogout = async (req, res) => {
-    try {
-        // Use the same cookie options as login to ensure proper clearing
-        const cookieOptions = {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'None',
-            path: '/',
-            maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-        };
+  try {
+    // Use the same cookie options as login to ensure proper clearing
+    const cookieOptions = {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'None',
+      path: '/',
+      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+    };
 
-        // Use these options for both setting and clearing cookies
-        res.clearCookie('sellerToken', cookieOptions);
-        return res.json({ success: true, message: 'Seller Logged out Successfully' });
-    } catch (error) {
-        console.error('Logout error:', error.message);
-        return res.status(500).json({ success: false, message: error.message });
-    }   
+    // Use these options for both setting and clearing cookies
+    res.clearCookie('sellerToken', cookieOptions);
+    return res.json({ success: true, message: 'Seller Logged out Successfully' });
+  } catch (error) {
+    console.error('Logout error:', error.message);
+    return res.status(500).json({ success: false, message: error.message });
+  }
 };

@@ -68,6 +68,9 @@ const Login = () => {
       );
 
       if (data.success) {
+        if (data.token) {
+          localStorage.setItem('userToken', data.token);
+        }
         setTimeout(async () => {
           await fetchUser();
           navigate('/');
