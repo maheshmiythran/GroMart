@@ -66,11 +66,9 @@ const Navbar = () => {
             alt="cart"
             className="w-6 opacity-80"
           />
-          {getCartCount() > 0 && (
-            <button id="cart-count-desktop" className="absolute -top-2 -right-3 text-xs text-white bg-green-500 w-[18px] h-[18px] rounded-full flex items-center justify-center">
-              {getCartCount()}
-            </button>
-          )}
+          <button id="cart-count-desktop" className="absolute -top-2 -right-3 text-xs text-white bg-green-500 w-[18px] h-[18px] rounded-full flex items-center justify-center">
+            {getCartCount()}
+          </button>
         </div>
 
         {!user ? (
@@ -130,11 +128,9 @@ const Navbar = () => {
             alt="cart"
             className="w-6 opacity-80"
           />
-          {getCartCount() > 0 && (
-            <span id="cart-count-mobile" className="absolute -top-1.5 -right-2 text-[10px] text-white bg-green-500 w-4 h-4 flex items-center justify-center rounded-full leading-none">
-              {getCartCount()}
-            </span>
-          )}
+          <span id="cart-count-mobile" className="absolute -top-1.5 -right-2 text-[10px] text-white bg-green-500 w-4 h-4 flex items-center justify-center rounded-full leading-none">
+            {getCartCount()}
+          </span>
         </div>
 
         {/* Menu Button */}

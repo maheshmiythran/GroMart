@@ -30,11 +30,14 @@ export const AppContextProvider = ({ children }) => {
         // But since we are attaching "Bearer <token>", the backend middleware will decode it
         // and check if it's a valid user or seller token.
 
-        // Priority to seller token if we are in seller mode
+        // Determine which token to use based on the request URL
+        // If the request is for the seller API, use the seller token
+        // Otherwise, use the user token
         const sellerToken = localStorage.getItem('sellerToken');
         const userToken = localStorage.getItem('userToken');
 
-        const token = window.location.pathname.includes('seller') ? (sellerToken || userToken) : (userToken || sellerToken);
+        const isSellerApi = config.url && config.url.includes('/api/seller');
+        const token = isSellerApi ? sellerToken : userToken;
 
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
