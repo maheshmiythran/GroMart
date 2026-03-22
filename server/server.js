@@ -1,6 +1,6 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
-import cors from 'cors'; 
+import cors from 'cors';
 import connectDB from './configs/db.js';
 import 'dotenv/config'
 import userRouter from './routes/userRoute.js';
@@ -10,10 +10,11 @@ import productRouter from './routes/productRoute.js';
 import cartRouter from './routes/cartRoute.js';
 import addressRouter from './routes/addressRoute.js';
 import orderRouter from './routes/orderRoute.js';
+import promoCodeRouter from './routes/promoCodeRoute.js';
 import dotenv from 'dotenv';
 import { stripeWebhook } from './controllers/orderController.js';
 dotenv.config();
-const app=express()
+const app = express()
 const port = process.env.PORT || 4000;
 
 await connectDB();
@@ -41,13 +42,14 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.get('/', (req, res) => res.send("<h2> API IS WORKING</h2>"));
-app.use('/api/user', userRouter);  
+app.use('/api/user', userRouter);
 app.use('/api/seller', sellerRouter);
 app.use('/api/product', productRouter);
-app.use('/api/cart', cartRouter); 
+app.use('/api/cart', cartRouter);
 app.use('/api/address', addressRouter);
 app.use('/api/order', orderRouter);
+app.use('/api/promocode', promoCodeRouter);
 
-app.listen(port, () =>{
-    console.log(`Server is running on http://localhost:${port}`)
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`)
 })

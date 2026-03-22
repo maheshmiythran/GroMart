@@ -1,13 +1,36 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { assets } from '../../assets/assets';
 import { useAppContext } from '../../context/AppContext';
 import { toast } from 'react-hot-toast';
 
 const SellerLayout = () => {
-  const { handleSellerLogout } = useAppContext();
+  const { handleSellerLogout, axios } = useAppContext();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const [expiringCount, setExpiringCount] = useState(0);
+
+  useEffect(() => {
+    const fetchExpiringCodes = async () => {
+      try {
+        const { data } = await axios.get('/api/promocode/list');
+        if (data.success && data.promoCodes) {
+          const now = new Date();
+          const nextWeek = new Date();
+          nextWeek.setDate(now.getDate() + 7);
+
+          const count = data.promoCodes.filter(c => {
+            const expiry = new Date(c.expiryDate);
+            return c.status === 'active' && expiry > now && expiry <= nextWeek;
+          }).length;
+          setExpiringCount(count);
+        }
+      } catch (e) {
+        console.error("Failed to fetch expiring codes", e);
+      }
+    };
+    fetchExpiringCodes();
+  }, [axios]);
 
   const sidebarLinks = [
     { name: 'Analytics', path: '/seller', icon: assets.order_icon }, // using order_icon as placeholder or if available
@@ -19,6 +42,7 @@ const SellerLayout = () => {
     },
     { name: 'Orders', path: '/seller/orders', icon: assets.order_icon },
     { name: 'Users', path: '/seller/users', icon: assets.profile_icon },
+    { name: 'Promo Codes', path: '/seller/promo-codes', icon: assets.product_list_icon },
   ];
 
   const onLogoutClick = async () => {
@@ -73,9 +97,16 @@ const SellerLayout = () => {
                     className={`w-6 h-6 transition ${isActive ? 'filter brightness-0 saturate-100 invert-[33%] sepia-[99%] hue-rotate-[100deg] contrast-[1.2]' : ''}`}
                   />
                   {!collapsed && (
-                    <p className="md:block hidden text-sm font-medium">
-                      {item.name}
-                    </p>
+                    <div className="flex items-center justify-between w-full">
+                      <p className="md:block hidden text-sm font-medium">
+                        {item.name}
+                      </p>
+                      {item.name === 'Promo Codes' && expiringCount > 0 && (
+                        <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5 ml-auto hidden md:block" title={`${expiringCount} codes expiring soon`}>
+                          {expiringCount}
+                        </span>
+                      )}
+                    </div>
                   )}
                 </>
               )}

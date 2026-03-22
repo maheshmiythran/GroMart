@@ -2,13 +2,14 @@ import Order from "../models/Order.js";
 import Product from "../models/Product.js";
 import Stripe from "stripe";
 import User from "../models/User.js";
+import PromoCode from "../models/PromoCode.js";
 
 const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // Place Order - COD: /api/order/cod
 export const placeOrderCOD = async (req, res) => {
   try {
-    const { items, address } = req.body;
+    const { items, address, promoCode, discountAmount } = req.body;
     const userId = req.user.id;
     if (!address || items.length === 0) {
       return res.json({ success: false, message: "Invalid Data" });
@@ -23,13 +24,22 @@ export const placeOrderCOD = async (req, res) => {
     // Add 2% tax
     amount += Math.floor(amount * 0.02);
 
+    // Apply discount
+    const finalAmount = Math.max(0, amount - (discountAmount || 0));
+
     await Order.create({
       userId,
       items,
-      amount,
+      amount: finalAmount,
       address,
       paymentType: "COD",
+      promoCode: promoCode || "",
+      discountAmount: discountAmount || 0
     });
+
+    if (promoCode) {
+      await PromoCode.findOneAndUpdate({ code: promoCode }, { $inc: { usedCount: 1 } });
+    }
     await User.findByIdAndUpdate(userId, { cartItems: {} });
     return res.json({ success: true, message: "Order Placed Successfully" });
   } catch (error) {
@@ -41,7 +51,7 @@ export const placeOrderCOD = async (req, res) => {
 // Place Order - Stripe: /api/order/stripe
 export const placeOrderStripe = async (req, res) => {
   try {
-    const { userId, items, address } = req.body;
+    const { userId, items, address, promoCode, discountAmount } = req.body;
     const { origin } = req.headers;
 
     if (!address || items.length === 0) {
@@ -61,16 +71,27 @@ export const placeOrderStripe = async (req, res) => {
 
     amount += Math.floor(amount * 0.02);
 
+    const finalAmount = Math.max(0, amount - (discountAmount || 0));
+
     // Create order in DB first
     const order = await Order.create({
       userId,
       items,
-      amount,
+      amount: finalAmount,
       address,
       paymentType: "Online",
       isPaid: false,
       status: "Pending Payment",
+      promoCode: promoCode || "",
+      discountAmount: discountAmount || 0
     });
+
+    if (promoCode) {
+      await PromoCode.findOneAndUpdate({ code: promoCode }, { $inc: { usedCount: 1 } });
+    }
+
+    // Distribute discount proportionally across items for Stripe
+    const ratio = amount > 0 ? finalAmount / amount : 1;
 
     const line_items = productData.map((item) => ({
       price_data: {
@@ -78,7 +99,7 @@ export const placeOrderStripe = async (req, res) => {
         product_data: {
           name: item.name,
         },
-        unit_amount: Math.floor(item.price * 1.02 * 100), // in cents
+        unit_amount: Math.floor(item.price * 1.02 * ratio * 100), // in cents
       },
       quantity: item.quantity,
     }));

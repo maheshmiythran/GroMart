@@ -22,7 +22,10 @@ const Cart = () => {
   const [showAddress, setShowAddress] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [paymentOption, setPaymentOption] = useState("COD");
-
+  const [promoCodeInput, setPromoCodeInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState(null);
+  const [isApplying, setIsApplying] = useState(false);
+  const [promoMessage, setPromoMessage] = useState({ type: '', text: '' });
   const handleDeleteAddress = async (address) => {
     try {
       const { data } = await axios.delete(`/api/address/delete/${address._id}`);
@@ -87,12 +90,43 @@ const Cart = () => {
     }
   }, [products, cartItems]);
 
+  const handleApplyPromo = async () => {
+    if (!promoCodeInput.trim()) return;
+    setIsApplying(true);
+    setPromoMessage({ type: '', text: '' });
+
+    try {
+      const cartTotal = getCartAmount(); // total before tax
+      const { data } = await axios.post('/api/promocode/validate',
+        { code: promoCodeInput, cartTotal },
+        { withCredentials: true }
+      );
+
+      if (data.success) {
+        setAppliedPromo(data.promoCode);
+        setPromoMessage({ type: 'success', text: data.message });
+      } else {
+        setPromoMessage({ type: 'error', text: data.message });
+      }
+    } catch (error) {
+      setPromoMessage({ type: 'error', text: 'Failed to apply promo code' });
+    } finally {
+      setIsApplying(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoCodeInput("");
+    setPromoMessage({ type: '', text: '' });
+  };
+
   const placeOrder = async () => {
     try {
       // Check authentication first
       if (!user?._id) {
-          setShowUserLogin(true);
-          return;
+        setShowUserLogin(true);
+        return;
       }
 
       if (!selectedAddress) {
@@ -106,6 +140,8 @@ const Cart = () => {
           quantity: item.quantity,
         })),
         address: selectedAddress._id,
+        promoCode: appliedPromo ? appliedPromo.code : "",
+        discountAmount: appliedPromo ? appliedPromo.discountAmount : 0,
       };
 
       const config = {
@@ -145,16 +181,16 @@ const Cart = () => {
   };
 
   useEffect(() => {
-  // Only fetch addresses if user is authenticated
-  if (user?._id) {
+    // Only fetch addresses if user is authenticated
+    if (user?._id) {
       getUserAddress();
     } else {
       setAddresses([]);
       setSelectedAddress(null);
-  }
+    }
   }, [user]);
 
-  
+
 
   return products.length > 0 && cartItems ? (
     <div id="cart-page" className="flex flex-col md:flex-row mt-16">
@@ -373,6 +409,41 @@ const Cart = () => {
           </select>
         </div>
 
+        <div className="mb-6">
+          <p className="text-sm font-medium uppercase mb-2">Have a promo code?</p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              placeholder="Enter promo code"
+              className="flex-1 border border-gray-300 px-3 py-2 outline-none uppercase text-sm"
+              value={promoCodeInput}
+              onChange={(e) => setPromoCodeInput(e.target.value)}
+              disabled={!!appliedPromo || isApplying}
+            />
+            {appliedPromo ? (
+              <button
+                onClick={handleRemovePromo}
+                className="bg-red-500 text-white px-3 text-sm hover:bg-red-600 transition"
+              >
+                ✕
+              </button>
+            ) : (
+              <button
+                onClick={handleApplyPromo}
+                disabled={!promoCodeInput.trim() || isApplying}
+                className="bg-primary text-white px-4 py-2 text-sm hover:bg-primary/90 transition disabled:opacity-50"
+              >
+                {isApplying ? "..." : "Apply"}
+              </button>
+            )}
+          </div>
+          {promoMessage.text && (
+            <p className={`text-sm mt-2 font-medium ${promoMessage.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
+              {promoMessage.type === 'success' ? '✓ ' : '✕ '}{promoMessage.text}
+            </p>
+          )}
+        </div>
+
         <hr className="border-gray-300" />
 
         <div id="cart-summary" className="text-gray-500 mt-4 space-y-2">
@@ -396,14 +467,20 @@ const Cart = () => {
               {(getCartAmount() * 2) / 100}
             </span>
           </p>
+          {appliedPromo && (
+            <p className="flex justify-between text-green-600">
+              <span>Promo Discount ({appliedPromo.code})</span>
+              <span>- {currency}{appliedPromo.discountAmount}</span>
+            </p>
+          )}
           <p
             id="cart-grand-total"
-            className="flex justify-between text-lg font-medium mt-3"
+            className="flex justify-between text-lg font-medium mt-3 text-gray-800"
           >
             <span>Total Amount:</span>
             <span>
               {currency}
-              {getCartAmount() + (getCartAmount() * 2) / 100}
+              {Math.max(0, getCartAmount() + (getCartAmount() * 2) / 100 - (appliedPromo ? appliedPromo.discountAmount : 0))}
             </span>
           </p>
         </div>

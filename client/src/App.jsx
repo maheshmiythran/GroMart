@@ -19,6 +19,7 @@ import ProductList from './pages/seller/ProductList'
 import Orders from './pages/seller/Orders'
 import Analytics from './pages/seller/Analytics'
 import UserManagement from './pages/seller/UserManagement'
+import PromoCodes from './pages/seller/PromoCodes'
 import Loading from './components/Loading'
 import BestSeller from './components/BestSeller'
 import Offers from './pages/Offers'
@@ -57,6 +58,7 @@ const App = () => {
             <Route path='product-list' element={<ProductList />} />
             <Route path='orders' element={<Orders />} />
             <Route path='users' element={<UserManagement />} />
+            <Route path='promo-codes' element={<PromoCodes />} />
           </Route>
           {/* footerLinks */}
           <Route path="/offers" element={<Offers />} />
